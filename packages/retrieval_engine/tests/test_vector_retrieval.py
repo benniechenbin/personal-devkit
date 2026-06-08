@@ -1,8 +1,8 @@
 from collections.abc import Sequence
 
 from retrieval_sdk import DocumentChunk, ScoredDocument, VectorRecord
-from retrieval_sdk.indexing import VectorIndexer, build_vector_records
-from retrieval_sdk.retrieval import BM25Retriever, HybridRetriever, VectorRetriever
+from rtrieval_engine.indexing import VectorIndexer, build_vector_records
+from rtrieval_engine.retrieval import BM25Retriever, HybridRetriever, VectorRetriever
 
 
 class ToyEmbeddingProvider:

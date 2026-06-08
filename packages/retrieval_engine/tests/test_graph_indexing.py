@@ -6,14 +6,14 @@ from retrieval_sdk import (
     GraphExtraction,
     GraphRelation,
 )
-from retrieval_sdk.indexing import (
+from rtrieval_engine.indexing import (
     GraphExtractor,
     GraphIndexer,
     SourceCache,
     SourceState,
     hash_text,
 )
-from retrieval_sdk.parsers import parse_graph_extraction
+from rtrieval_engine.parsers import parse_graph_extraction
 
 
 class FakeLLMProvider:

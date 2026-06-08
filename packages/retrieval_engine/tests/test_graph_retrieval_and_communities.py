@@ -7,8 +7,8 @@ from retrieval_sdk import (
     GraphCommunityHit,
     GraphRelationshipHit,
 )
-from retrieval_sdk.indexing import CommunityDetector, CommunitySummarizer
-from retrieval_sdk.retrieval import (
+from rtrieval_engine.indexing import CommunityDetector, CommunitySummarizer
+from rtrieval_engine.retrieval import (
     CommunityGraphRetriever,
     HybridGraphRetriever,
     LocalGraphRetriever,

@@ -31,9 +31,9 @@ pip install -e ".[qdrant,neo4j,lexical,templates]"
 
 ```python
 from retrieval_sdk import DocumentChunk
-from retrieval_sdk.indexing import VectorIndexer
-from retrieval_sdk.retrieval import VectorRetriever
-from retrieval_sdk.storage import QdrantVectorStorage
+from rtrieval_engine.e.e.e.e.indexing import VectorIndexer
+from rtrieval_engine.e.e.e.e.e.retrieval import VectorRetriever
+from rtrieval_engine.storage import QdrantVectorStorage
 
 
 class MyEmbeddingProvider:
@@ -72,8 +72,8 @@ results = VectorRetriever(
 
 ```python
 from retrieval_sdk import DocumentChunk
-from retrieval_sdk.indexing import GraphExtractor, GraphIndexer
-from retrieval_sdk.storage import Neo4jGraphWriter
+from rtrieval_engine.indexing import GraphExtractor, GraphIndexer
+from rtrieval_engine.storage import Neo4jGraphWriter
 
 
 class MyLLMProvider:
@@ -103,13 +103,13 @@ report = indexer.index_documents(
 ## 图谱召回
 
 ```python
-from retrieval_sdk.retrieval import (
+from rtrieval_engine.retrieval import (
     CommunityGraphRetriever,
     HybridGraphRetriever,
     LocalGraphRetriever,
     SemanticGraphRetriever,
 )
-from retrieval_sdk.storage import Neo4jGraphStorage
+from rtrieval_engine.storage import Neo4jGraphStorage
 
 
 graph_storage = Neo4jGraphStorage(
@@ -132,7 +132,7 @@ relationships, communities = retriever.search_context("项目风险")
 `SourceCache` 只负责 hash diff，不负责扫描策略、删除策略或任务调度。宿主项目可以按自己的业务流程组合：
 
 ```python
-from retrieval_sdk.indexing import SourceCache, build_file_state
+from rtrieval_engine.indexing import SourceCache, build_file_state
 
 
 cache = SourceCache.load(".cache/sources.json")
@@ -151,8 +151,8 @@ cache.save(".cache/sources.json")
 ## 社区检测与总结
 
 ```python
-from retrieval_sdk.indexing import CommunityDetector, CommunitySummarizer
-from retrieval_sdk.storage import Neo4jCommunityStorage
+from rtrieval_engine.indexing import CommunityDetector, CommunitySummarizer
+from rtrieval_engine.storage import Neo4jCommunityStorage
 
 
 community_storage = Neo4jCommunityStorage(
