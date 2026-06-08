@@ -1,13 +1,19 @@
 import asyncio
 import logging
 
-from crawl4ai import AsyncWebCrawler, BrowserConfig, CacheMode, CrawlerRunConfig
-from crawl4ai.content_filter_strategy import PruningContentFilter
-from crawl4ai.extraction_strategy import JsonCssExtractionStrategy
-from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator
 from crawl_engine.schema import ScrapeRequest, ScrapeResponse
 from pydantic import Field
 from tenacity import retry, stop_after_attempt, wait_exponential
+
+try:
+    from crawl4ai import AsyncWebCrawler, BrowserConfig, CacheMode, CrawlerRunConfig
+    from crawl4ai.content_filter_strategy import PruningContentFilter
+    from crawl4ai.extraction_strategy import JsonCssExtractionStrategy
+    from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator
+except ImportError as exc:
+    raise RuntimeError(
+        "Crawl4AI support is not installed. Install with: crawl-engine[crawl4ai]"
+    ) from exc
 
 logger = logging.getLogger(__name__)
 
