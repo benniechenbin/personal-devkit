@@ -1,6 +1,6 @@
 # {{ project_name }}
 
-一个基于 Python Base Template 生成的轻量 Python 项目。
+一个基于 Python 通用项目模板生成的轻量 Python 项目。
 
 ```text
 项目名：{{ project_name }}
@@ -73,12 +73,12 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Dockerfile 使用 Debian slim 系列镜像，CI 会构建镜像、执行 secret scan，并启动容器做 smoke test。
+Dockerfile 使用 Debian slim 系列镜像，CI 会构建镜像、执行密钥扫描，并启动容器做冒烟检查。
 
 ## 模板边界
 
-本项目是 Python Base Template，不包含 Agent、Runtime、Workflow、LangGraph。
+本项目来自 Python 通用项目模板，不包含 Agent、Runtime、Workflow、LangGraph。
 
-## License
+## 许可证
 
 MIT

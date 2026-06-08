@@ -1,4 +1,4 @@
-# retrieval-sdk
+# 检索 SDK
 
 一个极简的个人检索 SDK，用来复用向量库、知识图谱、聚落检测与召回组件。
 
@@ -178,4 +178,4 @@ ruff check src tests
 ruff format --check src tests
 ```
 
-这个仓库不保留独立 `pre-commit`。未来接入 monorepo 后，检查规则建议由 monorepo 根目录统一维护。
+这个包不保留独立 `pre-commit`。检查规则由 monorepo 根目录统一维护。

@@ -1,6 +1,6 @@
-# Python Base Template
+# Python 通用项目模板
 
-一个由 Copier 驱动的轻量 Python 通用项目底座。模板不包含 Agent、Runtime、Workflow、LangGraph。
+一个由 Copier 驱动的轻量 Python 通用项目底座。模板不包含 Agent、Runtime、Workflow、LangGraph，适合快速创建普通库、CLI、脚本服务或轻量后端项目。
 
 当前仓库的默认参考实现使用：
 
@@ -123,14 +123,14 @@ make env-example
 make check-env-example
 ```
 
-## pre-commit
+## 提交前检查
 
 ```bash
 uv run pre-commit install
 uv run pre-commit run --all-files
 ```
 
-## Docker
+## 容器运行
 
 ```bash
 cp .env.example .env
@@ -143,7 +143,7 @@ docker compose up --build
 docker build .
 ```
 
-Dockerfile 使用 Debian slim 系列镜像，降低 Alpine/musl 在 Python 依赖编译时的兼容风险。CI 会构建镜像并启动容器做 smoke test。
+Dockerfile 使用 Debian slim 系列镜像，降低 Alpine/musl 在 Python 依赖编译时的兼容风险。CI 会构建镜像并启动容器做冒烟检查。
 
 ## CI 安全检查
 
@@ -154,6 +154,6 @@ CI 使用 TruffleHog OSS 扫描已验证和未知状态的 secret。`.env`、日
 本模板是 Python Base Template，不包含 Agent、Runtime、Workflow、LangGraph。
 如需多智能体或 LangGraph 编排，请使用 `agent_enterprise_boilerplate`。
 
-## License
+## 许可证
 
 MIT
