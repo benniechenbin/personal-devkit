@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from collections.abc import Callable, Sequence
 
-from rtrieval_engine.domain import GraphContext, GraphRelationshipHit
-from rtrieval_engine.providers import EmbeddingProvider
-from rtrieval_engine.storage import GraphVectorStorage
+from retrieval_engine.domain import GraphContext, GraphRelationshipHit
+from retrieval_engine.providers import EmbeddingProvider
+from retrieval_engine.storage import GraphVectorStorage
 
 SemanticRelationshipFormatter = Callable[[Sequence[GraphRelationshipHit]], str]
 

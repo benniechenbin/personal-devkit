@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from rtrieval_engine.domain import ScoredDocument
-from rtrieval_engine.providers import EmbeddingProvider
-from rtrieval_engine.storage import VectorStorage
+from retrieval_engine.domain import ScoredDocument
+from retrieval_engine.providers import EmbeddingProvider
+from retrieval_engine.storage import VectorStorage
 
 
 class VectorRetriever:

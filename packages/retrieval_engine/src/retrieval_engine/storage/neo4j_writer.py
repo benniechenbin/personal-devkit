@@ -4,8 +4,8 @@ from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from typing import Any
 
-from rtrieval_engine.domain import GraphEntity, GraphExtraction, GraphRelation
-from rtrieval_engine.providers import EmbeddingProvider
+from retrieval_engine.domain import GraphEntity, GraphExtraction, GraphRelation
+from retrieval_engine.providers import EmbeddingProvider
 
 
 class Neo4jGraphWriter:

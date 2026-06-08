@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from rtrieval_engine.domain.document import DocumentChunk
+from retrieval_engine.domain.document import DocumentChunk
 
 
 @dataclass(slots=True)

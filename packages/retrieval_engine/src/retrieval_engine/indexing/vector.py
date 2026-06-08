@@ -3,9 +3,9 @@ from __future__ import annotations
 import uuid
 from collections.abc import Callable, Sequence
 
-from rtrieval_engine.domain import DocumentChunk, VectorRecord
-from rtrieval_engine.providers import EmbeddingProvider
-from rtrieval_engine.storage import VectorStorage
+from retrieval_engine.domain import DocumentChunk, VectorRecord
+from retrieval_engine.providers import EmbeddingProvider
+from retrieval_engine.storage import VectorStorage
 
 ProgressCallback = Callable[[int, str], None]
 IdFactory = Callable[[], str]

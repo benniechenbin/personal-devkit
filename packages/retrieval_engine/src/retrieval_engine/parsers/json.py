@@ -4,7 +4,7 @@ import json
 import re
 from typing import Any
 
-from rtrieval_engine.domain import (
+from retrieval_engine.domain import (
     CommunitySummary,
     GraphEntity,
     GraphExtraction,

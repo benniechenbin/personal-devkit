@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from rtrieval_engine.domain import CommunityDetectionReport
-from rtrieval_engine.storage.community import CommunityStorage
+from retrieval_engine.domain import CommunityDetectionReport
+from retrieval_engine.storage.community import CommunityStorage
 
 
 @dataclass(slots=True)

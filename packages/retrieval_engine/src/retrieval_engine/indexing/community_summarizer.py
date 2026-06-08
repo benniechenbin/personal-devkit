@@ -4,15 +4,15 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
-from rtrieval_engine.domain import (
+from retrieval_engine.domain import (
     BuildReport,
     CommunityCandidate,
     CommunitySummary,
 )
-from rtrieval_engine.parsers import parse_community_summary
-from rtrieval_engine.prompts import DEFAULT_COMMUNITY_SUMMARY_PROMPT, render_prompt
-from rtrieval_engine.providers import LLMProvider
-from rtrieval_engine.storage.community import CommunityStorage
+from retrieval_engine.parsers import parse_community_summary
+from retrieval_engine.prompts import DEFAULT_COMMUNITY_SUMMARY_PROMPT, render_prompt
+from retrieval_engine.providers import LLMProvider
+from retrieval_engine.storage.community import CommunityStorage
 
 CommunitySummaryParser = Callable[[str], CommunitySummary]
 

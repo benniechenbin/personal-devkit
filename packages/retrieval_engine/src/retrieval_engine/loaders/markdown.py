@@ -5,8 +5,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from rtrieval_engine.domain import DocumentChunk
-from rtrieval_engine.parsers.markdown import (
+from retrieval_engine.domain import DocumentChunk
+from retrieval_engine.parsers.markdown import (
     parse_frontmatter,
     should_include_markdown_file,
 )

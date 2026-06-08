@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Protocol, runtime_checkable
 
-from rtrieval_engine.domain import GraphCommunityHit, GraphRelationshipHit
+from retrieval_engine.domain import GraphCommunityHit, GraphRelationshipHit
 
 
 @runtime_checkable

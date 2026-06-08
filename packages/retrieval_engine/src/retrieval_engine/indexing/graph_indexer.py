@@ -3,9 +3,9 @@ from __future__ import annotations
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
-from rtrieval_engine.domain import BuildReport, DocumentChunk, GraphExtraction
-from rtrieval_engine.indexing.graph_extractor import GraphExtractor
-from rtrieval_engine.storage.graph_writer import GraphWriter
+from retrieval_engine.domain import BuildReport, DocumentChunk, GraphExtraction
+from retrieval_engine.indexing.graph_extractor import GraphExtractor
+from retrieval_engine.storage.graph_writer import GraphWriter
 
 ProgressCallback = Callable[[int, str], None]
 

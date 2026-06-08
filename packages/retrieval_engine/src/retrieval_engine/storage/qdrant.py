@@ -5,7 +5,7 @@ from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any
 
-from rtrieval_engine.domain import DocumentChunk, ScoredDocument, VectorRecord
+from retrieval_engine.domain import DocumentChunk, ScoredDocument, VectorRecord
 
 
 class QdrantVectorStorage:

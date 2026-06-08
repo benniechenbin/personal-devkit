@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
-from rtrieval_engine.domain import (
+from retrieval_engine.domain import (
     CommunityCandidate,
     CommunityDetectionReport,
     CommunitySummary,

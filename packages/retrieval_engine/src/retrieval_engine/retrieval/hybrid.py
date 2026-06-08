@@ -3,9 +3,9 @@ from __future__ import annotations
 import difflib
 from collections.abc import Sequence
 
-from rtrieval_engine.domain import DocumentChunk, ScoredDocument
-from rtrieval_engine.providers import RerankerProvider
-from rtrieval_engine.retrieval.base import Retriever, RetrieverResult
+from retrieval_engine.domain import DocumentChunk, ScoredDocument
+from retrieval_engine.providers import RerankerProvider
+from retrieval_engine.retrieval.base import Retriever, RetrieverResult
 
 
 class HybridRetriever:

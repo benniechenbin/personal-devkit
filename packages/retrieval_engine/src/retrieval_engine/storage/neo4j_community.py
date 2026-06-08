@@ -4,7 +4,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from typing import Any
 
-from rtrieval_engine.domain import (
+from retrieval_engine.domain import (
     CommunityCandidate,
     CommunityDetectionReport,
     CommunitySummary,

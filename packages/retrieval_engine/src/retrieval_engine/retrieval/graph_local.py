@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from collections.abc import Callable, Sequence
 
-from rtrieval_engine.domain import GraphContext, GraphRelationshipHit
-from rtrieval_engine.storage import GraphStorage
+from retrieval_engine.domain import GraphContext, GraphRelationshipHit
+from retrieval_engine.storage import GraphStorage
 
 RelationshipFormatter = Callable[[Sequence[GraphRelationshipHit]], str]
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Protocol, runtime_checkable
 
-from rtrieval_engine.domain import DocumentChunk
+from retrieval_engine.domain import DocumentChunk
 
 
 @runtime_checkable

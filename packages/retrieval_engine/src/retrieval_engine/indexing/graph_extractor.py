@@ -4,10 +4,10 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
-from rtrieval_engine.domain import GraphExtraction
-from rtrieval_engine.parsers import parse_graph_extraction
-from rtrieval_engine.prompts import DEFAULT_GRAPH_EXTRACTION_PROMPT, render_prompt
-from rtrieval_engine.providers import LLMProvider
+from retrieval_engine.domain import GraphExtraction
+from retrieval_engine.parsers import parse_graph_extraction
+from retrieval_engine.prompts import DEFAULT_GRAPH_EXTRACTION_PROMPT, render_prompt
+from retrieval_engine.providers import LLMProvider
 
 GraphExtractionParser = Callable[[str], GraphExtraction]
 MessageBuilder = Callable[[str, dict[str, Any]], list[dict[str, str]]]

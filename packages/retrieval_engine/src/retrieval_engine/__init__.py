@@ -1,4 +1,4 @@
-from rtrieval_engine.domain import (
+from retrieval_engine.domain import (
     BuildReport,
     CommunityCandidate,
     CommunityDetectionReport,
@@ -15,7 +15,7 @@ from rtrieval_engine.domain import (
     SearchResult,
     VectorRecord,
 )
-from rtrieval_engine.storage.base import NativeDocument, VectorStorage, VectorStore
+from retrieval_engine.storage.base import NativeDocument, VectorStorage, VectorStore
 
 __all__ = [
     "BuildReport",

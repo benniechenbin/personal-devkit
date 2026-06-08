@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from rtrieval_engine.domain import GraphContext
-from rtrieval_engine.retrieval.graph_community import CommunityGraphRetriever
-from rtrieval_engine.retrieval.graph_local import LocalGraphRetriever
-from rtrieval_engine.retrieval.graph_semantic import SemanticGraphRetriever
+from retrieval_engine.domain import GraphContext
+from retrieval_engine.retrieval.graph_community import CommunityGraphRetriever
+from retrieval_engine.retrieval.graph_local import LocalGraphRetriever
+from retrieval_engine.retrieval.graph_semantic import SemanticGraphRetriever
 
 
 class HybridGraphRetriever:

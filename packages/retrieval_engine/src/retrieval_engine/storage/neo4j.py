@@ -4,7 +4,7 @@ from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from typing import Any
 
-from rtrieval_engine.domain import GraphCommunityHit, GraphRelationshipHit
+from retrieval_engine.domain import GraphCommunityHit, GraphRelationshipHit
 
 
 class Neo4jGraphStorage:

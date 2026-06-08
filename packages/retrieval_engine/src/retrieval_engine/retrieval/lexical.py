@@ -4,7 +4,7 @@ import json
 from collections.abc import Callable, Sequence
 from pathlib import Path
 
-from rtrieval_engine.domain import DocumentChunk, ScoredDocument
+from retrieval_engine.domain import DocumentChunk, ScoredDocument
 
 Tokenizer = Callable[[str], list[str]]
 

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from collections.abc import Callable, Sequence
 
-from rtrieval_engine.domain import GraphCommunityHit, GraphContext
-from rtrieval_engine.storage import GraphStorage
+from retrieval_engine.domain import GraphCommunityHit, GraphContext
+from retrieval_engine.storage import GraphStorage
 
 CommunityFormatter = Callable[[Sequence[GraphCommunityHit]], str]
 

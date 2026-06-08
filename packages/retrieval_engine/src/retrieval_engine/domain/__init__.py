@@ -1,5 +1,5 @@
-from rtrieval_engine.domain.document import DocumentChunk, VectorRecord
-from rtrieval_engine.domain.graph import (
+from retrieval_engine.domain.document import DocumentChunk, VectorRecord
+from retrieval_engine.domain.graph import (
     CommunityCandidate,
     CommunityDetectionReport,
     CommunitySummary,
@@ -11,7 +11,7 @@ from rtrieval_engine.domain.graph import (
     GraphRelation,
     GraphRelationshipHit,
 )
-from rtrieval_engine.domain.result import BuildReport, ScoredDocument, SearchResult
+from retrieval_engine.domain.result import BuildReport, ScoredDocument, SearchResult
 
 __all__ = [
     "BuildReport",

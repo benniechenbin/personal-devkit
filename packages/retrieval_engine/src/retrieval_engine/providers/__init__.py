@@ -1,6 +1,6 @@
 """宿主项目提供的模型集成协议。"""
 
-from rtrieval_engine.providers.base import (
+from retrieval_engine.providers.base import (
     EmbeddingProvider,
     LLMProvider,
     RerankerProvider,
