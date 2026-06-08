@@ -1,4 +1,4 @@
-.PHONY: run test lint check clean install env-example env-example-check
+.PHONY: run test lint check clean install env-example check-env-example env-example-check
 
 install:
 	uv sync --extra dev
@@ -12,15 +12,17 @@ test:
 env-example:
 	uv run python scripts/generate_env_example.py
 
-env-example-check:
+check-env-example:
 	uv run python scripts/generate_env_example.py --check
+
+env-example-check: check-env-example
 
 lint:
 	uv run ruff check .
 	uv run ruff format .
 
 check:
-	uv run python scripts/generate_env_example.py --check
+	$(MAKE) check-env-example
 	uv run ruff check .
 	uv run ruff format . --check
 	uv run mypy src/ scripts/

@@ -32,9 +32,7 @@ class MarkdownLoader:
     def load(self, on_error: ErrorCallback | None = None) -> list[DocumentChunk]:
         source_dir = Path(self.source_dir)
         if not source_dir.exists():
-            raise FileNotFoundError(
-                f"Markdown source directory does not exist: {source_dir}"
-            )
+            raise FileNotFoundError(f"Markdown source directory does not exist: {source_dir}")
 
         documents: list[DocumentChunk] = []
 

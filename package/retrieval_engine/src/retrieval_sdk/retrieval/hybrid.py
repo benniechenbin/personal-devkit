@@ -58,9 +58,7 @@ class HybridRetriever:
                 scored = self._coerce_candidate(candidate)
                 content = scored.document.page_content
                 existing = by_content.get(content)
-                if existing is None or self._score_value(scored) > self._score_value(
-                    existing
-                ):
+                if existing is None or self._score_value(scored) > self._score_value(existing):
                     by_content[content] = scored
         return list(by_content.values())
 
@@ -105,17 +103,13 @@ class HybridRetriever:
                 continue
 
             is_duplicate = any(
-                difflib.SequenceMatcher(None, content, seen).ratio()
-                > self.duplicate_threshold
+                difflib.SequenceMatcher(None, content, seen).ratio() > self.duplicate_threshold
                 for seen in seen_contents
             )
             if is_duplicate:
                 continue
 
-            if (
-                "retrieval_score" not in document.metadata
-                and candidate.score is not None
-            ):
+            if "retrieval_score" not in document.metadata and candidate.score is not None:
                 document.metadata["retrieval_score"] = float(candidate.score)
             if candidate.source and "retrieval_source" not in document.metadata:
                 document.metadata["retrieval_source"] = candidate.source

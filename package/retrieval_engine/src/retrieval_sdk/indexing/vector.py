@@ -29,9 +29,7 @@ def build_vector_records(
 
     for start in range(0, total, batch_size):
         batch = list(documents[start : start + batch_size])
-        vectors = embedding_provider.embed_documents(
-            [document.page_content for document in batch]
-        )
+        vectors = embedding_provider.embed_documents([document.page_content for document in batch])
         if len(vectors) != len(batch):
             raise ValueError("embedding_provider returned a different vector count.")
 

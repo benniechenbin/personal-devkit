@@ -118,6 +118,7 @@ def _iter_dicts(value: Any) -> list[dict[str, Any]]:
         return []
     return [item for item in value if isinstance(item, dict)]
 
+
 def _coerce_metadata(value: Any) -> dict[str, Any]:
     if not isinstance(value, dict):
         return {}

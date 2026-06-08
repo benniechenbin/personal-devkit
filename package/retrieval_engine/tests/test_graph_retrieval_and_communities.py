@@ -85,9 +85,7 @@ class FakeCommunityStorage:
 
     def detect_leiden_communities(self, **kwargs) -> CommunityDetectionReport:
         self.detect_options = kwargs
-        return CommunityDetectionReport(
-            graph_name=kwargs["graph_name"], community_count=2
-        )
+        return CommunityDetectionReport(graph_name=kwargs["graph_name"], community_count=2)
 
     def list_unsummarized_communities(
         self,

@@ -35,6 +35,7 @@ credentials. The default skeleton run does not require an API key.
 
 ```bash
 make env-example
+make check-env-example
 ```
 
 Run the one-shot CLI container with:

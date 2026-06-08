@@ -5,12 +5,7 @@ from retrieval_sdk.prompts import render_prompt
 
 def test_parse_frontmatter_returns_metadata_and_body() -> None:
     metadata, body = parse_frontmatter(
-        "---\n"
-        "date: 2026/06/07\n"
-        "tags: [risk, graph]\n"
-        "---\n"
-        "# Note\n"
-        "Project risk."
+        "---\ndate: 2026/06/07\ntags: [risk, graph]\n---\n# Note\nProject risk."
     )
 
     assert metadata["date"] == "2026-06-07"
@@ -39,8 +34,6 @@ def test_markdown_loader_keeps_whole_document(tmp_path) -> None:
 
 def test_render_prompt_replaces_simple_variables() -> None:
     assert (
-        render_prompt(
-            "Extract {{ topic }} from {{ source }}.", topic="risk", source="docs"
-        )
+        render_prompt("Extract {{ topic }} from {{ source }}.", topic="risk", source="docs")
         == "Extract risk from docs."
     )

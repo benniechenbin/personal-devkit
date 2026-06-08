@@ -116,9 +116,7 @@ class Neo4jCommunityStorage:
         return CommunityDetectionReport(
             graph_name=graph_name,
             node_count=int(_record_get(project_result, "nodeCount", 0) or 0),
-            relationship_count=int(
-                _record_get(project_result, "relationshipCount", 0) or 0
-            ),
+            relationship_count=int(_record_get(project_result, "relationshipCount", 0) or 0),
             community_count=int(_record_get(leiden_result, "communityCount", 0) or 0),
             node_properties_written=int(
                 _record_get(leiden_result, "nodePropertiesWritten", 0) or 0
@@ -174,9 +172,7 @@ class Neo4jCommunityStorage:
                         community_id=community_id,
                         size=size,
                         top_nodes=[
-                            str(record.get("name"))
-                            for record in top_nodes
-                            if record.get("name")
+                            str(record.get("name")) for record in top_nodes if record.get("name")
                         ],
                     )
                 )

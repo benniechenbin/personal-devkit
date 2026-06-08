@@ -63,9 +63,7 @@ def test_parse_graph_extraction_filters_empty_items() -> None:
 
 
 def test_graph_extractor_renders_prompt_and_parses_response() -> None:
-    llm = FakeLLMProvider(
-        '{"entities": [{"id": "Risk", "type": "Concept"}], ' '"relationships": []}'
-    )
+    llm = FakeLLMProvider('{"entities": [{"id": "Risk", "type": "Concept"}], "relationships": []}')
 
     extraction = GraphExtractor(
         llm_provider=llm,

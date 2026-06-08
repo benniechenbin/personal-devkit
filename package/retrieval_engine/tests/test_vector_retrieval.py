@@ -32,10 +32,7 @@ class MemoryVectorStorage:
         scored = [
             ScoredDocument(
                 document=record.document,
-                score=sum(
-                    left * right
-                    for left, right in zip(vector, record.vector, strict=False)
-                ),
+                score=sum(left * right for left, right in zip(vector, record.vector, strict=False)),
                 source="memory-vector",
             )
             for record in self.records
@@ -48,10 +45,7 @@ class MemoryVectorStorage:
 
 class ToyReranker:
     def score(self, query: str, documents: Sequence[DocumentChunk]) -> list[float]:
-        return [
-            2.0 if "graph" in document.page_content.lower() else 1.0
-            for document in documents
-        ]
+        return [2.0 if "graph" in document.page_content.lower() else 1.0 for document in documents]
 
 
 def test_build_vector_records_uses_external_embedding_provider() -> None:

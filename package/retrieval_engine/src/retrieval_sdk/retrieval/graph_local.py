@@ -36,7 +36,6 @@ def format_relationship_hits(hits: Sequence[GraphRelationshipHit]) -> str:
         source_summary = f"({hit.source_summary})" if hit.source_summary else ""
         target_summary = f"({hit.target_summary})" if hit.target_summary else ""
         lines.append(
-            f"[{hit.source}] {source_summary} --({hit.relation})--> "
-            f"[{hit.target}] {target_summary}"
+            f"[{hit.source}] {source_summary} --({hit.relation})--> [{hit.target}] {target_summary}"
         )
     return "\n".join(lines)

@@ -74,9 +74,7 @@ class BM25Retriever:
         except ModuleNotFoundError:
             return
 
-        tokenized = [
-            self.tokenizer(document.page_content) for document in self.documents
-        ]
+        tokenized = [self.tokenizer(document.page_content) for document in self.documents]
         self._model = BM25Okapi(tokenized)
 
     def add_documents(self, documents: Sequence[DocumentChunk]) -> None:

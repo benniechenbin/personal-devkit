@@ -55,9 +55,8 @@ class QdrantVectorStorage:
         staging_collection = self._versioned_collection_name()
         alias_switched = False
         old_alias_target = self._get_alias_target()
-        old_physical_exists = (
-            old_alias_target is None
-            and self.client.collection_exists(self.collection_name)
+        old_physical_exists = old_alias_target is None and self.client.collection_exists(
+            self.collection_name
         )
 
         self._create_collection(staging_collection)
@@ -68,9 +67,7 @@ class QdrantVectorStorage:
                 self.client.update_collection_aliases(
                     [
                         self._models.DeleteAliasOperation(
-                            delete_alias=self._models.DeleteAlias(
-                                alias_name=self.collection_name
-                            )
+                            delete_alias=self._models.DeleteAlias(alias_name=self.collection_name)
                         ),
                         self._models.CreateAliasOperation(
                             create_alias=self._models.CreateAlias(

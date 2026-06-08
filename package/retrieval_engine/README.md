@@ -179,4 +179,3 @@ ruff format --check src tests
 ```
 
 这个仓库不保留独立 `pre-commit`。未来接入 monorepo 后，检查规则建议由 monorepo 根目录统一维护。
-

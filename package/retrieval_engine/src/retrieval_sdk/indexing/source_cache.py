@@ -93,8 +93,7 @@ class SourceCache:
 
     def diff(self, current: Mapping[str, SourceState | str]) -> SourceDiff:
         current_states = {
-            source: _coerce_source_state(source, state)
-            for source, state in current.items()
+            source: _coerce_source_state(source, state) for source, state in current.items()
         }
         old_sources = set(self.states)
         current_sources = set(current_states)
@@ -120,8 +119,7 @@ class SourceCache:
 
     def replace(self, states: Mapping[str, SourceState | str]) -> None:
         self.states = {
-            source: _coerce_source_state(source, state)
-            for source, state in states.items()
+            source: _coerce_source_state(source, state) for source, state in states.items()
         }
 
     def update(self, states: Mapping[str, SourceState | str]) -> None:

@@ -34,4 +34,4 @@ repos:
           - --check-untyped-defs
           - --warn-unused-ignores
           - --warn-unreachable
-        files: ^(package/retrieval_engine|templates/agent_enterprise_boilerplate|templates/python_project_boilerplate)/src/
+        files: ^(templates/(agent_enterprise_boilerplate|python_project_boilerplate)/src/|templates/_shared/).+\.py$
