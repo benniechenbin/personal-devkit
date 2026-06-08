@@ -3,12 +3,20 @@ name = "personal-devkit"
 version = "0.1.0"
 description = "Monorepo for reusable development SDK packages and project templates."
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+  "pydantic>=2",
+  "pydantic-settings>=2",
+  "loguru>=0.7",
+]
 
 [dependency-groups]
 dev = [
+    "langgraph>=1.2.4",
+    "loguru>=0.7.3",
     "mypy>=1.10.0",
     "pre-commit>=3.7.0",
+    "pydantic>=2.13.4",
+    "pydantic-settings>=2.14.1",
     "pytest>=8.0.0",
     "pytest-cov>=5.0.0",
     "ruff>=0.6.0",
