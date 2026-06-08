@@ -34,4 +34,4 @@ repos:
           - --check-untyped-defs
           - --warn-unused-ignores
           - --warn-unreachable
-        files: ^(templates/(agent_enterprise_boilerplate|python_project_boilerplate)/src/|templates/_shared/).+\.py$
+        files: ^(apps/ocr_app/src/|templates/(agent_enterprise_boilerplate|python_project_boilerplate)/src/|templates/_shared/).+\.py$

@@ -10,6 +10,7 @@ sync-shared:
 	uv run python templates/_shared/sync_shared.py --check
 
 check-env-example:
+	cd apps/ocr_app && uv run python scripts/generate_env_example.py --check
 	cd templates/python_project_boilerplate && uv run python scripts/generate_env_example.py --check
 	cd templates/agent_enterprise_boilerplate && uv run python scripts/generate_env_example.py --check
 
@@ -20,10 +21,10 @@ format:
 	uv run ruff format . --check
 
 type:
-	uv run mypy templates/agent_enterprise_boilerplate/src templates/python_project_boilerplate/src templates/_shared
+	uv run mypy apps/ocr_app/src templates/agent_enterprise_boilerplate/src templates/python_project_boilerplate/src templates/_shared
 
 type-retrieval:
-	uv run mypy package/retrieval_engine/src
+	uv run mypy packages/retrieval_engine/src
 
 test:
 	uv run pytest

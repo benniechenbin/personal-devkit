@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ocr-app"
+version = "0.1.0"
+description = "Runnable OCR application shell built on document-engine."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "document-engine[formula,vision]",
+    "loguru>=0.7.2",
+    "pydantic-settings>=2.14.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+    "ruff>=0.4.0",
+    "mypy>=1.10.0",
+]
+
+[project.scripts]
+ocr-app = "ocr_app.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ocr_app"]
+
+[tool.uv]
+package = true
+
+[tool.uv.sources]
+document-engine = { workspace = true }

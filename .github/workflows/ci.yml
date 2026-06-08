@@ -40,7 +40,8 @@ jobs:
 
       - name: Check env examples
         run: |
-          cd templates/python_project_boilerplate && uv run python scripts/generate_env_example.py --check
+          cd apps/ocr_app && uv run python scripts/generate_env_example.py --check
+          cd ../../templates/python_project_boilerplate && uv run python scripts/generate_env_example.py --check
           cd ../../templates/agent_enterprise_boilerplate && uv run python scripts/generate_env_example.py --check
 
       - name: Lint
@@ -50,7 +51,7 @@ jobs:
         run: uv run ruff format . --check
 
       - name: Type check
-        run: uv run mypy templates/agent_enterprise_boilerplate/src templates/python_project_boilerplate/src templates/_shared
+        run: uv run mypy apps/ocr_app/src templates/agent_enterprise_boilerplate/src templates/python_project_boilerplate/src templates/_shared
 
       - name: Test
         run: uv run pytest

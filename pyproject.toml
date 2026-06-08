@@ -19,26 +19,34 @@ package = false
 
 [tool.uv.workspace]
 members = [
-    "package/retrieval_engine",
+    "apps/ocr_app",
+    "packages/document_engine",
+    "packages/retrieval_engine",
     "templates/agent_enterprise_boilerplate",
     "templates/python_project_boilerplate",
 ]
 
 [tool.pytest.ini_options]
 testpaths = [
-    "package/retrieval_engine/tests",
+    "apps/ocr_app/tests",
+    "packages/document_engine/tests",
+    "packages/retrieval_engine/tests",
     "templates/agent_enterprise_boilerplate/tests",
     "templates/python_project_boilerplate/tests",
 ]
 pythonpath = [
-    "package/retrieval_engine",
-    "package/retrieval_engine/src",
+    "apps/ocr_app",
+    "apps/ocr_app/src",
+    "packages/document_engine",
+    "packages/document_engine/src",
+    "packages/retrieval_engine",
+    "packages/retrieval_engine/src",
     "templates/agent_enterprise_boilerplate",
     "templates/agent_enterprise_boilerplate/src",
     "templates/python_project_boilerplate",
     "templates/python_project_boilerplate/src",
 ]
-addopts = "-q --import-mode=importlib --cov=retrieval_sdk --cov=app --cov=python_project_boilerplate --cov-report=term-missing"
+addopts = "-q --import-mode=importlib --cov=retrieval_sdk --cov=document_engine --cov=ocr_app --cov=app --cov=python_project_boilerplate --cov-report=term-missing"
 
 [tool.ruff]
 line-length = 100
@@ -66,20 +74,35 @@ exclude = [
     "(.*/)?tests/.*",
 ]
 
+[[tool.mypy.overrides]]
+module = [
+    "document_engine.*",
+    "fitz.*",
+    "pix2text.*",
+]
+follow_imports = "skip"
+ignore_missing_imports = true
+
 [tool.coverage.run]
 branch = true
 source = [
     "retrieval_sdk",
+    "document_engine",
+    "ocr_app",
     "app",
     "python_project_boilerplate",
 ]
 omit = [
     "*/tests/*",
     "*/__init__.py",
-    "package/retrieval_engine/src/retrieval_sdk/storage/neo4j.py",
-    "package/retrieval_engine/src/retrieval_sdk/storage/neo4j_community.py",
-    "package/retrieval_engine/src/retrieval_sdk/storage/neo4j_writer.py",
-    "package/retrieval_engine/src/retrieval_sdk/storage/qdrant.py",
+    "packages/retrieval_engine/src/retrieval_sdk/storage/neo4j.py",
+    "packages/retrieval_engine/src/retrieval_sdk/storage/neo4j_community.py",
+    "packages/retrieval_engine/src/retrieval_sdk/storage/neo4j_writer.py",
+    "packages/retrieval_engine/src/retrieval_sdk/storage/qdrant.py",
+    "packages/document_engine/src/document_engine/components/math_extractor.py",
+    "packages/document_engine/src/document_engine/engines/mineru_engine.py",
+    "packages/document_engine/src/document_engine/engines/vector_engine.py",
+    "packages/document_engine/src/document_engine/engines/vision_engine.py",
     "templates/agent_enterprise_boilerplate/src/app/agents/*",
     "templates/agent_enterprise_boilerplate/src/app/api/router.py",
     "templates/agent_enterprise_boilerplate/src/app/core/errors.py",
