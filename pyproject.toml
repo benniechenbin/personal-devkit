@@ -30,6 +30,7 @@ members = [
     "apps/ocr_app",
     "packages/document_engine",
     "packages/retrieval_engine",
+    "packages/crawl_engine",
     "templates/agent_enterprise_boilerplate",
     "templates/python_project_boilerplate",
 ]

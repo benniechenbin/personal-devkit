@@ -1,0 +1,20 @@
+[project]
+name = "crawl-engine"
+version = "0.1.0"
+description = "Reusable web crawling primitives for URL fetching, rendered markdown extraction, and web input pipelines."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.28",
+    "pydantic>=2",
+    "tenacity>=9",
+]
+
+[project.optional-dependencies]
+crawl4ai = [
+    "crawl4ai>=0.6",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
