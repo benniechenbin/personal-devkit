@@ -1,14 +1,14 @@
 from collections.abc import Sequence
 
-from retrieval_sdk import (
+from retrieval_engine import (
     CommunityCandidate,
     CommunityDetectionReport,
     CommunitySummary,
     GraphCommunityHit,
     GraphRelationshipHit,
 )
-from rtrieval_engine.indexing import CommunityDetector, CommunitySummarizer
-from rtrieval_engine.retrieval import (
+from retrieval_engine.indexing import CommunityDetector, CommunitySummarizer
+from retrieval_engine.retrieval import (
     CommunityGraphRetriever,
     HybridGraphRetriever,
     LocalGraphRetriever,

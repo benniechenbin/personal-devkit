@@ -46,7 +46,7 @@ pythonpath = [
     "templates/python_project_boilerplate",
     "templates/python_project_boilerplate/src",
 ]
-addopts = "-q --import-mode=importlib --cov=retrieval_sdk --cov=document_engine --cov=ocr_app --cov=app --cov=python_project_boilerplate --cov-report=term-missing"
+addopts = "-q --import-mode=importlib --cov=retrieval_engine --cov=document_engine --cov=ocr_app --cov=app --cov=python_project_boilerplate --cov-report=term-missing"
 
 [tool.ruff]
 line-length = 100
@@ -86,7 +86,7 @@ ignore_missing_imports = true
 [tool.coverage.run]
 branch = true
 source = [
-    "retrieval_sdk",
+    "retrieval_engine",
     "document_engine",
     "ocr_app",
     "app",
@@ -95,10 +95,10 @@ source = [
 omit = [
     "*/tests/*",
     "*/__init__.py",
-    "packages/retrieval_engine/src/retrieval_sdk/storage/neo4j.py",
-    "packages/retrieval_engine/src/retrieval_sdk/storage/neo4j_community.py",
-    "packages/retrieval_engine/src/retrieval_sdk/storage/neo4j_writer.py",
-    "packages/retrieval_engine/src/retrieval_sdk/storage/qdrant.py",
+    "packages/retrieval_engine/src/retrieval_engine/storage/neo4j.py",
+    "packages/retrieval_engine/src/retrieval_engine/storage/neo4j_community.py",
+    "packages/retrieval_engine/src/retrieval_engine/storage/neo4j_writer.py",
+    "packages/retrieval_engine/src/retrieval_engine/storage/qdrant.py",
     "packages/document_engine/src/document_engine/components/math_extractor.py",
     "packages/document_engine/src/document_engine/engines/mineru_engine.py",
     "packages/document_engine/src/document_engine/engines/vector_engine.py",

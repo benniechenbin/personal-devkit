@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from rtrieval_engine.domain import GraphEntity, GraphRelation
-from rtrieval_engine.parsers import parse_graph_extraction
+from retrieval_engine.domain import GraphEntity, GraphRelation
+from retrieval_engine.parsers import parse_graph_extraction
 
 
 def test_graph_entity_and_relation_support_metadata() -> None:

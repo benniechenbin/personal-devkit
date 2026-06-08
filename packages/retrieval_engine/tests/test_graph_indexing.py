@@ -1,19 +1,19 @@
 from collections.abc import Sequence
 
-from retrieval_sdk import (
+from retrieval_engine import (
     DocumentChunk,
     GraphEntity,
     GraphExtraction,
     GraphRelation,
 )
-from rtrieval_engine.indexing import (
+from retrieval_engine.indexing import (
     GraphExtractor,
     GraphIndexer,
     SourceCache,
     SourceState,
     hash_text,
 )
-from rtrieval_engine.parsers import parse_graph_extraction
+from retrieval_engine.parsers import parse_graph_extraction
 
 
 class FakeLLMProvider:

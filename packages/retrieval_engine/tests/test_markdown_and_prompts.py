@@ -1,6 +1,6 @@
-from rtrieval_engine.loaders import MarkdownLoader
-from rtrieval_engine.parsers import parse_frontmatter
-from rtrieval_engine.prompts import render_prompt
+from retrieval_engine.loaders import MarkdownLoader
+from retrieval_engine.parsers import parse_frontmatter
+from retrieval_engine.prompts import render_prompt
 
 
 def test_parse_frontmatter_returns_metadata_and_body() -> None:

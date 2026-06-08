@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from rtrieval_engine.domain import DocumentChunk, ScoredDocument
-from rtrieval_engine.retrieval import HybridRetriever, Retriever
+from retrieval_engine.domain import DocumentChunk, ScoredDocument
+from retrieval_engine.retrieval import HybridRetriever, Retriever
 
 
 class FakeScoredRetriever:
