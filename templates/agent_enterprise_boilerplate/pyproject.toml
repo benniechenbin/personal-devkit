@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agent-enterprise-boilerplate"
+version = "0.1.0"
+description = "A lightweight, evolvable Agent application boilerplate."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "langchain-core>=0.3.0",
+    "langchain-openai>=0.2.0",
+    "langgraph>=0.2.0",
+    "loguru>=0.7.2",
+    "pydantic-settings>=2.2.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+    "ruff>=0.4.0",
+    "mypy>=1.10.0",
+    "pre-commit>=3.7.0",
+]
+
+[project.scripts]
+agent-app = "app.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/app"]
+
+[tool.uv]
+package = true

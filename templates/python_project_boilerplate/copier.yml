@@ -1,0 +1,22 @@
+_min_copier_version: "9.0.0"
+_subdirectory: template
+_message_after_copy: |
+  Project "{{ project_name }}" created with package "src/{{ package_name }}".
+  Run `uv sync --extra dev` to install dependencies.
+_message_after_update: |
+  Project "{{ project_name }}" updated from the template.
+  Review the changes and run `uv lock --check && make check && make test`.
+
+project_name:
+  type: str
+  help: Project name used by package metadata, for example "order-service".
+  default: python-project-boilerplate
+  validator: >-
+    {% if not (project_name | regex_search('^[a-z][a-z0-9-]*$')) %}
+    Use lowercase letters, digits, and dashes; start with a letter.
+    {% endif %}
+
+package_name:
+  type: str
+  default: "{{ project_name | replace('-', '_') }}"
+  when: false

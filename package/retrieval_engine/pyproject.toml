@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "retrieval-sdk"
+version = "0.1.0"
+description = "A small reusable SDK for vector retrieval, graph retrieval, and community indexing."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "chenbin" }]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.6",
+]
+lexical = [
+  "jieba>=0.42",
+  "rank-bm25>=0.2",
+]
+neo4j = [
+  "neo4j>=5.0",
+]
+qdrant = [
+  "qdrant-client>=1.9",
+]
+templates = [
+  "jinja2>=3.1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/retrieval_sdk"]
+
+[tool.uv]
+package = true

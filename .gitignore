@@ -1,0 +1,38 @@
+.DS_Store
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+!**/.env.example
+!**/template/.env.example.jinja
+.venv/
+venv/
+env/
+.uv-cache/
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Build outputs
+build/
+dist/
+*.egg-info/
+
+# Local data and logs
+data/
+models/
+logs/
+.learnings/
+
+# Editors
+.idea/
+.vscode/

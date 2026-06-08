@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "python-project-boilerplate"
+version = "0.1.0"
+description = "A lightweight Python project starter with settings, logging, and bootstrap wiring."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "loguru>=0.7.2",
+    "pydantic-settings>=2.2.1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/python_project_boilerplate"]
+
+[tool.uv]
+package = true
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+    "ruff>=0.4.0",
+    "mypy>=1.10.0",
+    "pre-commit>=3.7.0",
+]
+banner = [
+    "pyfiglet>=0.8.1",
+]
+
+[project.scripts]
+base-app = "python_project_boilerplate.main:main"

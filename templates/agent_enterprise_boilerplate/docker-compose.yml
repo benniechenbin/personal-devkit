@@ -1,0 +1,10 @@
+services:
+  app:
+    build: .
+    volumes:
+      - ./logs:/app/logs
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      LOG_DIR: /app/logs
