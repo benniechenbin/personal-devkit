@@ -5,22 +5,27 @@ from crawl_engine.schema import ScrapeRequest, ScrapeResponse
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 logger = logging.getLogger(__name__)
+DEFAULT_USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/124.0.0.0 Safari/537.36"
+)
 
 
 class HttpxEngine:
     """轻量级并发爬虫引擎，极速抓取静态页面"""
 
-    def __init__(self):
-        # 初始化一个全局连接池，提高抓取效率
-        self.client = httpx.AsyncClient(
-            verify=False,  # 忽略 SSL 证书错误
+    def __init__(self, client: httpx.AsyncClient | None = None) -> None:
+        self.client = client or httpx.AsyncClient(
+            verify=False,
             timeout=10.0,
-            limits=httpx.Limits(max_connections=50),  # 并发连接池大小
+            limits=httpx.Limits(max_connections=50),
         )
 
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=10),
+        reraise=True,
         before_sleep=lambda retry_state: logger.warning(
             f"🔄 轻量引擎重试抓取，第 {retry_state.attempt_number} 次..."
         ),
@@ -28,11 +33,6 @@ class HttpxEngine:
     async def _execute_scrape(self, request: ScrapeRequest) -> ScrapeResponse:
         logger.info(f"⚡ 轻量引擎出击: {request.url}")
 
-        DEFAULT_USER_AGENT = (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/124.0.0.0 Safari/537.36"
-        )
         headers = {
             "User-Agent": DEFAULT_USER_AGENT,
         }
@@ -50,8 +50,11 @@ class HttpxEngine:
         return ScrapeResponse(
             success=True,
             url=request.url,
+            final_url=str(response.url),
+            status_code=response.status_code,
+            content_type=response.headers.get("content-type"),
             raw_html=raw_html,
-            content=raw_html,  # httpx 不做清理，原样返回
+            content=raw_html,
             content_length=len(raw_html),
         )
 
@@ -62,7 +65,12 @@ class HttpxEngine:
         except httpx.HTTPStatusError as e:
             logger.exception(f"❌ HTTP 状态错误 {request.url}: {e.response.status_code}")
             return ScrapeResponse(
-                success=False, url=request.url, error_message=f"HTTP {e.response.status_code}"
+                success=False,
+                url=request.url,
+                final_url=str(e.response.url),
+                status_code=e.response.status_code,
+                content_type=e.response.headers.get("content-type"),
+                error_message=f"HTTP {e.response.status_code}",
             )
         except httpx.TimeoutException:
             logger.exception(f"⌛ 请求超时: {request.url}")

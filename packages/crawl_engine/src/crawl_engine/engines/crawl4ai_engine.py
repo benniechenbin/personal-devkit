@@ -1,34 +1,40 @@
 import asyncio
 import logging
 
-from crawl_engine.schema import ScrapeRequest, ScrapeResponse
-from pydantic import Field
+from crawl_engine.schema import Crawl4AIRequest, ScrapeResponse
 from tenacity import retry, stop_after_attempt, wait_exponential
 
-try:
-    from crawl4ai import AsyncWebCrawler, BrowserConfig, CacheMode, CrawlerRunConfig
-    from crawl4ai.content_filter_strategy import PruningContentFilter
-    from crawl4ai.extraction_strategy import JsonCssExtractionStrategy
-    from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator
-except ImportError as exc:
-    raise RuntimeError(
-        "Crawl4AI support is not installed. Install with: crawl-engine[crawl4ai]"
-    ) from exc
-
 logger = logging.getLogger(__name__)
+DEFAULT_USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/120.0.0.0 Safari/537.36"
+)
 
 
-class Crawl4AIRequest(ScrapeRequest):
-    """Crawl4AI 专用扩展契约"""
+def _load_crawl4ai():
+    try:
+        from crawl4ai import AsyncWebCrawler, BrowserConfig, CacheMode, CrawlerRunConfig
+        from crawl4ai.content_filter_strategy import PruningContentFilter
+        from crawl4ai.extraction_strategy import JsonCssExtractionStrategy
+        from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator
+    except ImportError as exc:
+        raise RuntimeError(
+            "Crawl4AI support is not installed. Install with: crawl-engine[crawl4ai]"
+        ) from exc
 
-    remove_noise: bool = Field(default=True)
-    max_length: int = Field(default=10000)
-    css_schema: dict | None = Field(default=None)
-    wait_for: str | None = Field(default=None)
-    js_code: list[str] | None = Field(default=None)
+    return (
+        AsyncWebCrawler,
+        BrowserConfig,
+        CacheMode,
+        CrawlerRunConfig,
+        PruningContentFilter,
+        JsonCssExtractionStrategy,
+        DefaultMarkdownGenerator,
+    )
 
 
-class WebScraper:
+class Crawl4AIEngine:
     """纯粹的爬虫引擎，没有任何写死的业务逻辑"""
 
     def __init__(self, headless: bool = True):
@@ -37,6 +43,7 @@ class WebScraper:
 
     @retry(
         stop=stop_after_attempt(3),
+        reraise=True,
         wait=wait_exponential(multiplier=1, min=2, max=10),
         before_sleep=lambda retry_state: logger.warning(
             f"正在重试抓取，第 {retry_state.attempt_number} 次..."
@@ -45,12 +52,16 @@ class WebScraper:
     async def _execute_scrape(self, request: Crawl4AIRequest) -> ScrapeResponse:
         """核心业务逻辑（保留了你全部的出色配置和防死锁设计）"""
         logger.info(f"🕸️ 引擎接收到爬取任务: {request.url}")
+        (
+            AsyncWebCrawler,
+            BrowserConfig,
+            CacheMode,
+            CrawlerRunConfig,
+            PruningContentFilter,
+            JsonCssExtractionStrategy,
+            DefaultMarkdownGenerator,
+        ) = _load_crawl4ai()
 
-        DEFAULT_USER_AGENT = (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/120.0.0.0 Safari/537.36"
-        )  # 动态传入 self.headless
         browser_config = BrowserConfig(
             headless=self.headless,
             verbose=False,
@@ -102,15 +113,32 @@ class WebScraper:
                 return ScrapeResponse(
                     success=True,
                     url=request.url,
+                    final_url=getattr(result, "url", request.url),
+                    status_code=getattr(result, "status_code", None),
                     content=final_content,
                     raw_html=result.html,
+                    content_length=len(final_content),
                     extracted_data=result.extracted_content,
+                    metadata={
+                        "engine": "crawl4ai",
+                        "remove_noise": request.remove_noise,
+                    },
                 )
             else:
+                status_code = getattr(result, "status_code", None)
+                error_message = getattr(result, "error_message", "Unknown Crawl4AI error")
+
                 return ScrapeResponse(
                     success=False,
                     url=request.url,
-                    error_message=f"HTTP {result.status_code}: {result.error_message}",
+                    final_url=getattr(result, "url", request.url),
+                    status_code=status_code,
+                    error_message=f"HTTP {status_code}: {error_message}"
+                    if status_code
+                    else error_message,
+                    metadata={
+                        "engine": "crawl4ai",
+                    },
                 )
 
     async def fetch_content(self, request: Crawl4AIRequest) -> ScrapeResponse:
