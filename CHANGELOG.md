@@ -21,3 +21,6 @@
 - 增加根目录统一的 `uv` workspace、pytest、Ruff、MyPy、coverage、pre-commit 与 GitHub Actions CI 配置。
 - 清理子项目迁移遗留的嵌套 Git 仓库、独立 CI 配置、本地虚拟环境、缓存、日志和覆盖率产物。
 - 明确版本记录策略：根目录维护 monorepo 变更日志，package 维护各自 `CHANGELOG.md`，template 仅维护 `VERSION.md`。
+- 增加 monorepo 级 integration smoke tests，验证 `document_engine -> retrieval_engine` 跨 package 链路。
+- 增加 `retrieval_engine` 高收益单元测试，覆盖 SourceCache、VectorIndexer、Prompt renderer、GraphIndexer 错误路径。
+- 修正 `python_project_boilerplate` entrypoint 测试，使其符合模板参考实现的测试边界。
