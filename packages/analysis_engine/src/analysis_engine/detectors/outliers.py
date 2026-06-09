@@ -71,5 +71,3 @@ class OutlierDetector:
             )
 
         return anomalies
-
-        return anomalies

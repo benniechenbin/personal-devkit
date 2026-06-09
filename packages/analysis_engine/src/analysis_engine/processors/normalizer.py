@@ -81,9 +81,9 @@ class DataNormalizer:
                 elif direction_val in ["转账", "neutral"]:
                     direction = FlowDirection.NEUTRAL
                 else:
-                    # 否则，根据 amount 的正负号推断（默认记账习惯通常负数表示流出，或者正数表示支出视应用而定）
-                    # 考虑到通用性，这里默认: 负数为 outflow，正数为 inflow。
-                    # 如果只有正数且没传 direction，默认作为 OUTFLOW（兼容旧的单支出流水）。
+                    # 默认兼容常见“全为正数的支出账单”：
+                    # 没有 direction 时，负数和正数都默认视为 OUTFLOW。
+                    # 如需区分收入，请由 app 层显式传入 direction 字段或映射规则。
                     if raw_amount < 0:
                         direction = FlowDirection.OUTFLOW
                     elif raw_amount > 0 and direction_val == "":
