@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 
 import httpx
-
 from crawl_engine.downloads import AttachmentDownloader
 from crawl_engine.schema import AttachmentRequest
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import pytest
-
 from crawl_engine.outputs.markdown_file import (
     append_markdown,
     delete_markdown,
