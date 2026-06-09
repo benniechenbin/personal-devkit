@@ -24,11 +24,11 @@ class DocumentRouter:
         elif suffix == ".docx":
             return self.docx_reader.parse(path)
         elif suffix == ".pdf":
-            if self.vector_pdf_pipeline is None:
-                self.vector_pdf_pipeline = VectorPdfPipeline(output_dir=self.output_dir)
             return self._parse_pdf(path)
         else:
             raise ValueError(f"Unsupported file type: {suffix}")
 
     def _parse_pdf(self, path: Path) -> list[Fragment]:
+        if self.vector_pdf_pipeline is None:
+            self.vector_pdf_pipeline = VectorPdfPipeline(output_dir=self.output_dir)
         return self.vector_pdf_pipeline.process_pdf(str(path))

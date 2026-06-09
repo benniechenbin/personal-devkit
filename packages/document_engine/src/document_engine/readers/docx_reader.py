@@ -20,7 +20,7 @@ class DocxReader:
 
         fragments = []
         try:
-            doc = Document(path)
+            doc = Document(str(path))
 
             # 采用一个比较稳妥的顺序获取方式
             for block in self._iter_block_items(doc):
