@@ -68,5 +68,3 @@ uv run pytest packages/document_engine/tests -q
 uv run ruff check packages/document_engine
 uv run ruff format packages/document_engine --check
 ```
-
-
