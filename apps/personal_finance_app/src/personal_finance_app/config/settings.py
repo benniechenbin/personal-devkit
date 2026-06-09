@@ -40,6 +40,10 @@ class Settings(BaseSettings):
     # OpenAI configuration
     openai_api_key: str = ""
     openai_model: str = "gpt-4o"
+    llm_url: str = Field(
+        default="https://api.openai.com/v1",
+        description="LLM API 的基础 URL (例如 DeepSeek 的 https://api.deepseek.com/v1)",
+    )
 
     model_config = SettingsConfigDict(
         env_file=".env",

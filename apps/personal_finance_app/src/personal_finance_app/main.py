@@ -3,19 +3,17 @@ import sys
 from pathlib import Path
 
 from analysis_engine.synthesis.report_builder import ReportBuilder
-from document_engine import DocumentRouter
-from loguru import logger
+from document.engine.router import DocumentRouter
 from openai import OpenAI
 
-from personal_finance_app.config import settings
-from personal_finance_app.core.banner import show_banner
+from personal_finance_app.config.settings import settings
 from personal_finance_app.core.bootstrap import init_workspace
+from personal_finance_app.observability.logger import logger
 
 
 def main() -> None:
     """Main entrypoint for the CLI MVP."""
     init_workspace()
-    show_banner("FINANCE ANALYZER")
 
     parser = argparse.ArgumentParser(description="Personal Finance CLI MVP")
     parser.add_argument("file_path", help="Path to the Excel/CSV bill file")
@@ -50,12 +48,19 @@ def main() -> None:
     import pandas as pd
 
     try:
-        if file_path.suffix == ".csv":
+        suffix = file_path.suffix.lower()
+
+        if suffix == ".csv":
             df = pd.read_csv(file_path)
         else:
-            df = pd.read_excel(file_path)
+            df = pd.read_excel(file_path, sheet_name="交易", header=1)
+
+        # 针对当前“个人预算.xlsx”模板，过滤占位行 / 空行
+        df = df.dropna(subset=["日期", "总额"])
+
         raw_data = df.to_dict(orient="records")
-        logger.info(f"Loaded {len(raw_data)} raw records.")
+        logger.info("Loaded {} raw records.", len(raw_data))
+
     except Exception as e:
         logger.error(f"Failed to load structured data: {e}")
         sys.exit(1)
@@ -68,17 +73,20 @@ def main() -> None:
             "日期": "timestamp",
             "amount": "amount",
             "金额": "amount",
+            "总额": "amount",
             "direction": "direction",
             "收支": "direction",
+            "类型": "direction",
             "category": "category",
             "分类": "category",
+            "类别": "category",
             "description": "description",
             "描述": "description",
         }
         builder = ReportBuilder(mapping=mapping)
         report = builder.build_report(raw_data)
         logger.info(
-            "Generated analysis report with %s metrics and %s anomalies.",
+            "Generated analysis report with {} metrics and {} anomalies.",
             len(report.metrics),
             len(report.anomalies),
         )
@@ -94,7 +102,7 @@ def main() -> None:
 
     logger.info("Requesting optimization suggestions from LLM...")
     try:
-        client = OpenAI(api_key=settings.openai_api_key)
+        client = OpenAI(api_key=settings.openai_api_key, base_url=settings.llm_url)
 
         prompt = f"""
         你是一位专业的个人理财助理。请基于以下用户近期的财务数据事实简报，
