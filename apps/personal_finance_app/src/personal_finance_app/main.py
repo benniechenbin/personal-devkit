@@ -9,12 +9,12 @@ from openai import OpenAI
 
 from personal_finance_app.config import settings
 from personal_finance_app.core.banner import show_banner
-from personal_finance_app.core.bootstrap import bootstrap
+from personal_finance_app.core.bootstrap import init_workspace
 
 
 def main() -> None:
     """Main entrypoint for the CLI MVP."""
-    bootstrap()
+    init_workspace()
     show_banner("FINANCE ANALYZER")
 
     parser = argparse.ArgumentParser(description="Personal Finance CLI MVP")
