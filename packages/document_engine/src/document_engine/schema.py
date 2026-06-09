@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 
@@ -12,4 +12,4 @@ class Fragment:
     page_num: int = 0  # 赋予默认值，防止 vector_engine 实例化时报错
     source: str = "vector"  # 默认标记为 vector
     bbox: tuple[float, float, float, float] | None = None
-    meta: dict[str, Any] | None = None  # 规范一点，加上 Optional
+    meta: dict[str, Any] = field(default_factory=dict)

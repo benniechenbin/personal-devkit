@@ -16,13 +16,12 @@ uv add "document-engine[formula,vision]" # 完整 OCR 应用能力
 
 ## 能力边界
 
-- `router.py`：文档路由器，根据文件类型自动分发给合适的引擎。
-- `engines/`：文档解析引擎集合。
+- `router.py`：文档路由器，根据文件类型自动分发给合适的 reader 或 engine。
+- `readers/`：文件格式入口，例如 CSV、Excel、DOCX。
+- `engines/`：复杂解析策略集合。
   - `vector_engine`：矢量 PDF 解析。
-  - `tabular_engine`：表格文档 (Excel, CSV) 解析。
-  - `docx_engine`：Word 文档 (Docx) 解析。
   - `vision_engine`：视觉 OCR 解析。
-- `components/`：图片、表格、公式、遮罩等局部提取组件。
+- `components/`：图片、表格、公式、遮罩等 PDF 局部处理组件。
 - `assembler.py`：按页码和物理坐标重组解析碎片。
 - `formatters/`：Markdown 清洗与 Obsidian frontmatter 包装。
 - `schema.py`：文档碎片（`Fragment`）等基础数据结构。

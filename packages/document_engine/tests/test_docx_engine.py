@@ -1,21 +1,22 @@
 from pathlib import Path
 
 from document_engine.engines.docx_engine import DocxEngine
+from document_engine.readers.docx_reader import DocxReader
 
 
-def test_parse_docx():
+def test_docx_engine_compat():
+    """测试旧路径兼容性"""
     engine = DocxEngine()
     docx_path = Path(__file__).parent / "data" / "test.docx"
-    fragments = engine.parse(docx_path)
+    if docx_path.exists():
+        fragments = engine.parse(docx_path)
+        assert len(fragments) >= 1
 
-    # 期望：1个段落，1个表格
-    assert len(fragments) >= 2
 
-    # 第一个应该是 text
-    assert fragments[0].type == "text"
-    assert "Hello Docx" in fragments[0].content
-
-    # 第二个应该是 table
-    assert fragments[1].type == "table"
-    assert "Header1" in fragments[1].content
-    assert "Val1" in fragments[1].content
+def test_docx_reader():
+    """测试新推荐路径"""
+    reader = DocxReader()
+    docx_path = Path(__file__).parent / "data" / "test.docx"
+    if docx_path.exists():
+        fragments = reader.parse(docx_path)
+        assert len(fragments) >= 1

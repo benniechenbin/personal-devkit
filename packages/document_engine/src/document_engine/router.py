@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from .engines.docx_engine import DocxEngine
-from .engines.tabular_engine import TabularEngine
 from .engines.vector_engine import VectorPipeline
+from .readers.docx_reader import DocxReader
+from .readers.tabular_reader import TabularReader
 from .schema import Fragment
 
 
@@ -11,8 +11,8 @@ class DocumentRouter:
 
     def __init__(self, output_dir: str = "output"):
         self.output_dir = output_dir
-        self.tabular_engine = TabularEngine()
-        self.docx_engine = DocxEngine()
+        self.tabular_reader = TabularReader()
+        self.docx_reader = DocxReader()
         self.vector_pipeline = None  # 延迟加载，因为 PDF 处理较重
 
     def parse(self, file_path: str | Path) -> list[Fragment]:
@@ -20,14 +20,12 @@ class DocumentRouter:
         suffix = path.suffix.lower()
 
         if suffix in [".csv", ".xlsx", ".xlsm"]:
-            return self.tabular_engine.parse(path)
+            return self.tabular_reader.parse(path)
         elif suffix == ".docx":
-            return self.docx_engine.parse(path)
+            return self.docx_reader.parse(path)
         elif suffix == ".pdf":
             if self.vector_pipeline is None:
                 self.vector_pipeline = VectorPipeline(output_dir=self.output_dir)
-            # 注意：VectorPipeline 目前的接口可能不同，这里假设它有一个类似 parse 的接口
-            # 实际上 VectorPipeline 需要 doc 对象，或者我们可以封装它
             return self._parse_pdf(path)
         else:
             raise ValueError(f"Unsupported file type: {suffix}")
