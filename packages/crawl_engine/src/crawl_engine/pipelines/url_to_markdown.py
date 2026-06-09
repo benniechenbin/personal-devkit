@@ -8,8 +8,7 @@ from crawl_engine.schema import Crawl4AIRequest, ScrapeResponse
 
 
 class MarkdownFetchEngine(Protocol):
-    async def fetch_content(self, request: Crawl4AIRequest) -> ScrapeResponse:
-        ...
+    async def fetch_content(self, request: Crawl4AIRequest) -> ScrapeResponse: ...
 
 
 async def fetch_url_as_markdown(
