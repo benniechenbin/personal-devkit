@@ -1,12 +1,12 @@
 # 文档解析引擎
 
-`document-engine` 是可复用的文档解析能力包，负责把 PDF 等文档解析为结构化碎片，并提供 Markdown/Obsidian 格式化能力。
+`document-engine` 是可复用的文档解析能力包，负责把 PDF、Excel、CSV、Word (Docx) 等文档解析为统一的结构化碎片（`Fragment`），并提供 Markdown/Obsidian 格式化以及文档重组能力。
 
 这个包只保留能力层代码，不读取 `.env`，不持有应用级 settings/bootstrap，也不决定运行模式。调用方负责选择引擎、传入输入文件和输出目录，并处理日志、异常和落盘。
 
 包内日志使用 Python 标准库 `logging.getLogger(__name__)`，不依赖 `loguru`，也不配置 handler。应用层可以按自己的需要接管标准 logging，或桥接到 `loguru`。
 
-基础安装只包含矢量 PDF 解析所需的轻量依赖。公式识别和视觉 OCR 属于可选能力：
+基础安装包含矢量 PDF 解析、表格（Excel/CSV）解析以及 Word（Docx）解析所需的轻量依赖。公式识别和视觉 OCR 属于可选能力：
 
 ```bash
 uv add "document-engine[formula]"        # Pix2Text 公式识别
@@ -16,27 +16,47 @@ uv add "document-engine[formula,vision]" # 完整 OCR 应用能力
 
 ## 能力边界
 
-- `engines/`：文档解析引擎，例如矢量 PDF 解析和视觉 OCR 解析。
+- `router.py`：文档路由器，根据文件类型自动分发给合适的引擎。
+- `engines/`：文档解析引擎集合。
+  - `vector_engine`：矢量 PDF 解析。
+  - `tabular_engine`：表格文档 (Excel, CSV) 解析。
+  - `docx_engine`：Word 文档 (Docx) 解析。
+  - `vision_engine`：视觉 OCR 解析。
 - `components/`：图片、表格、公式、遮罩等局部提取组件。
 - `assembler.py`：按页码和物理坐标重组解析碎片。
 - `formatters/`：Markdown 清洗与 Obsidian frontmatter 包装。
-- `schema.py`：文档碎片等基础数据结构。
+- `schema.py`：文档碎片（`Fragment`）等基础数据结构。
 
 ## 调用示例
 
+使用推荐的 **智能路由 (DocumentRouter)** 进行统一解析：
+
 ```python
+from document_engine import DocumentRouter
 from document_engine.assembler import DocumentAssembler
+
+router = DocumentRouter()
+
+# 它可以无缝处理 Excel/CSV、Word (Docx) 或 PDF
+fragments_excel = router.parse("finance_report.xlsx")
+fragments_docx = router.parse("meeting_notes.docx")
+fragments_pdf = router.parse("paper.pdf")
+
+# 重组为纯文本 (Markdown)
+markdown_output = DocumentAssembler().assemble(fragments_pdf)
+```
+
+如果你需要精细控制或使用特定功能：
+
+```python
 from document_engine.engines.vector_engine import VectorPipeline
 from document_engine.formatters.markdown_formatter import MarkdownFormatter
 from document_engine.formatters.obsidian_formatter import ObsidianWrapper
 
-
 engine = VectorPipeline(output_dir="output")
 fragments = engine.process_pdf("example.pdf")
 
-raw_markdown = DocumentAssembler().assemble(fragments)
-cleaned = MarkdownFormatter().format_to_markdown(raw_markdown)
-final_markdown = ObsidianWrapper.inject_yaml_frontmatter(cleaned, "example.pdf")
+# 格式化...
 ```
 
 ## 与应用层的关系
