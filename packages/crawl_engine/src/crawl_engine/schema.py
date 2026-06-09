@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -32,3 +33,22 @@ class Crawl4AIRequest(ScrapeRequest):
     css_schema: dict[str, Any] | None = None
     wait_for: str | None = None
     js_code: list[str] | None = None
+
+
+class AttachmentRequest(BaseModel):
+    url: str
+    file_name: str | None = None
+    headers: dict[str, str] = Field(default_factory=dict)
+    timeout_ms: int = 30_000
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class DownloadedFile(BaseModel):
+    success: bool
+    url: str
+    path: Path | None = None
+    file_name: str = ""
+    content_type: str | None = None
+    size_bytes: int | None = None
+    error_message: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)

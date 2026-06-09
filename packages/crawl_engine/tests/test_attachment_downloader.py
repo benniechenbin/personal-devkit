@@ -1,0 +1,239 @@
+from __future__ import annotations
+
+import asyncio
+
+import httpx
+
+from crawl_engine.downloads import AttachmentDownloader
+from crawl_engine.schema import AttachmentRequest
+
+
+def test_attachment_downloader_saves_file_with_explicit_name(tmp_path) -> None:
+    async def run() -> None:
+        def handler(request: httpx.Request) -> httpx.Response:
+            assert request.headers.get("x-token") == "demo"
+            return httpx.Response(
+                200,
+                content=b"PDF content",
+                headers={"content-type": "application/pdf"},
+                request=request,
+            )
+
+        client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+        downloader = AttachmentDownloader(client=client)
+
+        try:
+            result = await downloader.download(
+                AttachmentRequest(
+                    url="https://example.com/files/report",
+                    file_name="报告:附件?.pdf",
+                    headers={"X-Token": "demo"},
+                    metadata={"source": "test"},
+                ),
+                tmp_path,
+            )
+        finally:
+            await downloader.close()
+
+        assert result.success is True
+        assert result.path is not None
+        assert result.path.exists()
+        assert result.path.read_bytes() == b"PDF content"
+        assert result.file_name == "报告_附件.pdf"
+        assert result.content_type == "application/pdf"
+        assert result.size_bytes == len(b"PDF content")
+        assert result.metadata == {"source": "test"}
+
+    asyncio.run(run())
+
+
+def test_attachment_downloader_uses_content_disposition_filename(tmp_path) -> None:
+    async def run() -> None:
+        def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(
+                200,
+                content=b"hello",
+                headers={
+                    "content-type": "application/octet-stream",
+                    "content-disposition": 'attachment; filename="demo.pdf"',
+                },
+                request=request,
+            )
+
+        client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+        downloader = AttachmentDownloader(client=client)
+
+        try:
+            result = await downloader.download(
+                AttachmentRequest(url="https://example.com/download"),
+                tmp_path,
+            )
+        finally:
+            await downloader.close()
+
+        assert result.success is True
+        assert result.path is not None
+        assert result.path.name == "demo.pdf"
+        assert result.path.read_bytes() == b"hello"
+
+    asyncio.run(run())
+
+
+def test_attachment_downloader_uses_url_filename_when_no_explicit_name(tmp_path) -> None:
+    async def run() -> None:
+        def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(
+                200,
+                content=b"data",
+                headers={"content-type": "application/pdf"},
+                request=request,
+            )
+
+        client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+        downloader = AttachmentDownloader(client=client)
+
+        try:
+            result = await downloader.download(
+                AttachmentRequest(url="https://example.com/files/demo.pdf"),
+                tmp_path,
+            )
+        finally:
+            await downloader.close()
+
+        assert result.success is True
+        assert result.path is not None
+        assert result.path.name == "demo.pdf"
+        assert result.path.read_bytes() == b"data"
+
+    asyncio.run(run())
+
+
+def test_attachment_downloader_auto_renames_existing_file(tmp_path) -> None:
+    async def run() -> None:
+        (tmp_path / "demo.pdf").write_bytes(b"old")
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(
+                200,
+                content=b"new",
+                headers={"content-type": "application/pdf"},
+                request=request,
+            )
+
+        client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+        downloader = AttachmentDownloader(client=client)
+
+        try:
+            result = await downloader.download(
+                AttachmentRequest(
+                    url="https://example.com/files/demo.pdf",
+                ),
+                tmp_path,
+                auto_rename=True,
+            )
+        finally:
+            await downloader.close()
+
+        assert result.success is True
+        assert result.path is not None
+        assert result.path.name == "demo_1.pdf"
+        assert result.path.read_bytes() == b"new"
+        assert (tmp_path / "demo.pdf").read_bytes() == b"old"
+
+    asyncio.run(run())
+
+
+def test_attachment_downloader_returns_failure_when_file_exists_without_overwrite(
+    tmp_path,
+) -> None:
+    async def run() -> None:
+        existing = tmp_path / "demo.pdf"
+        existing.write_bytes(b"old")
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(
+                200,
+                content=b"new",
+                headers={"content-type": "application/pdf"},
+                request=request,
+            )
+
+        client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+        downloader = AttachmentDownloader(client=client)
+
+        try:
+            result = await downloader.download(
+                AttachmentRequest(url="https://example.com/files/demo.pdf"),
+                tmp_path,
+                overwrite=False,
+                auto_rename=False,
+            )
+        finally:
+            await downloader.close()
+
+        assert result.success is False
+        assert result.path == existing
+        assert result.error_message is not None
+        assert "File already exists" in result.error_message
+        assert existing.read_bytes() == b"old"
+
+    asyncio.run(run())
+
+
+def test_attachment_downloader_returns_failure_on_http_error(tmp_path) -> None:
+    async def run() -> None:
+        def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(
+                404,
+                content=b"not found",
+                headers={"content-type": "text/plain"},
+                request=request,
+            )
+
+        client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+        downloader = AttachmentDownloader(client=client)
+
+        try:
+            result = await downloader.download(
+                AttachmentRequest(url="https://example.com/missing.pdf"),
+                tmp_path,
+            )
+        finally:
+            await downloader.close()
+
+        assert result.success is False
+        assert result.error_message == "HTTP 404"
+        assert result.content_type == "text/plain"
+
+    asyncio.run(run())
+
+
+def test_attachment_downloader_download_many(tmp_path) -> None:
+    async def run() -> None:
+        def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(
+                200,
+                content=request.url.path.encode("utf-8"),
+                request=request,
+            )
+
+        client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+        downloader = AttachmentDownloader(client=client)
+
+        try:
+            results = await downloader.download_many(
+                [
+                    AttachmentRequest(url="https://example.com/a.pdf"),
+                    AttachmentRequest(url="https://example.com/b.pdf"),
+                ],
+                tmp_path,
+            )
+        finally:
+            await downloader.close()
+
+        assert [result.success for result in results] == [True, True]
+        assert [result.file_name for result in results] == ["a.pdf", "b.pdf"]
+        assert (tmp_path / "a.pdf").read_bytes() == b"/a.pdf"
+        assert (tmp_path / "b.pdf").read_bytes() == b"/b.pdf"
+
+    asyncio.run(run())
