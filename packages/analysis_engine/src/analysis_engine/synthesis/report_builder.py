@@ -14,7 +14,7 @@ class ReportBuilder:
     def __init__(self, mapping: Optional[Dict[str, str]] = None):
         self.normalizer = DataNormalizer(mapping=mapping)
 
-    def build_report(self, raw_data: List[Dict[str, Any]]) -> AnalysisReport:
+    def build_report(self, raw_data: list[dict[str, Any]]) -> AnalysisReport:
         # 1. 标准化
         entries = self.normalizer.normalize(raw_data)
         if not entries:

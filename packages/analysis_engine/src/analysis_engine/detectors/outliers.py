@@ -1,5 +1,4 @@
 import pandas as pd
-from typing import List
 from ..schema import StandardEntry, AnomalyFact, FlowDirection
 
 
@@ -8,7 +7,7 @@ class OutlierDetector:
     负责检测交易记录中的离群值（大额异常支出）。
     """
 
-    def __init__(self, entries: List[StandardEntry], threshold: float = 2.0):
+    def __init__(self, entries: list[StandardEntry], threshold: float = 2.0):
         """
         Args:
             threshold: 阈值倍数。如果金额超过该分类均值的 threshold 倍，则视为异常。
@@ -33,7 +32,7 @@ class OutlierDetector:
         ]
         return pd.DataFrame(data)
 
-    def detect_category_outliers(self) -> List[AnomalyFact]:
+    def detect_category_outliers(self) -> list[AnomalyFact]:
         """按分类检测大额开支异常（仅针对流出）"""
         if self.df.empty:
             return []
@@ -70,5 +69,7 @@ class OutlierDetector:
                     related_entries=[related_entry],
                 )
             )
+
+        return anomalies
 
         return anomalies

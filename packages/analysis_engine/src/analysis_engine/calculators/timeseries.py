@@ -1,5 +1,4 @@
 import pandas as pd
-from typing import List
 from ..schema import StandardEntry, MetricFact, FlowDirection
 
 
@@ -8,7 +7,7 @@ class TimeseriesCalculator:
     负责对 StandardEntry 列表进行时序聚合计算。
     """
 
-    def __init__(self, entries: List[StandardEntry]):
+    def __init__(self, entries: list[StandardEntry]):
         self.entries = entries
         self.df = self._to_df()
 
@@ -55,7 +54,7 @@ class TimeseriesCalculator:
         total = self.df["signed_value"].sum()
         return MetricFact(name="Net Flow", value=float(total), unit="元")
 
-    def get_monthly_summary(self) -> List[MetricFact]:
+    def get_monthly_summary(self) -> list[MetricFact]:
         """按月和分类进行汇总 (仅针对流出，通常花销分析更关注流出)"""
         if self.df.empty:
             return []
@@ -85,7 +84,7 @@ class TimeseriesCalculator:
             )
         return facts
 
-    def get_mom_change(self) -> List[MetricFact]:
+    def get_mom_change(self) -> list[MetricFact]:
         """计算月度流出环比变化"""
         if self.df.empty:
             return []

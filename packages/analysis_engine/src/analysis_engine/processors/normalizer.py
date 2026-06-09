@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 from datetime import datetime
 import pandas as pd
 from ..schema import StandardEntry, FlowDirection
@@ -34,7 +34,7 @@ class DataNormalizer:
             "description": "description",
         }
 
-    def normalize(self, raw_data: List[Dict[str, Any]]) -> List[StandardEntry]:
+    def normalize(self, raw_data: list[dict[str, Any]]) -> list[StandardEntry]:
         """将原始数据列表转换为 StandardEntry 列表"""
         if not raw_data:
             return []
