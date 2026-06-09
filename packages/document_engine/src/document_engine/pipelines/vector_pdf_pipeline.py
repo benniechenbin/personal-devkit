@@ -14,7 +14,7 @@ from ..schema import Fragment
 logger = logging.getLogger(__name__)
 
 
-class VectorPipeline:
+class VectorPdfPipeline:
     def __init__(self, output_dir="output"):
         self.output_dir = output_dir
         if not os.path.exists(self.output_dir):
@@ -215,12 +215,12 @@ if __name__ == "__main__":
 
     print("\n" + "=" * 50)
     logging.basicConfig(level=logging.INFO)
-    logger.info("启动 VectorEngine 引擎级独立测试。")
+    logger.info("启动 VectorPdfPipeline 引擎级独立测试。")
     print("=" * 50 + "\n")
 
     if os.path.exists(test_pdf):
         # 实例化引擎（默认输出到项目根目录的 output 文件夹）
-        pipeline = VectorPipeline(output_dir="output")
+        pipeline = VectorPdfPipeline(output_dir="output")
 
         try:
             result_path = pipeline.process_pdf(test_pdf)

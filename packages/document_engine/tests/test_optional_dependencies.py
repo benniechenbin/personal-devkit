@@ -24,6 +24,6 @@ def test_formula_dependency_is_loaded_lazily() -> None:
 
 
 def test_vision_dependency_is_loaded_lazily() -> None:
-    imports = _top_level_import_modules(SOURCE_ROOT / "engines" / "vision_engine.py")
+    imports = _top_level_import_modules(SOURCE_ROOT / "pipelines" / "vision_pdf_pipeline.py")
 
     assert "paddleocr" not in imports

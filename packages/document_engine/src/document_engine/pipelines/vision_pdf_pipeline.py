@@ -20,7 +20,7 @@ def _load_paddleocr():
     return PaddleOCR
 
 
-class VisionPipeline:
+class VisionPdfPipeline:
     _ocr_engine = None
 
     def __init__(self, output_dir="output"):
@@ -32,11 +32,11 @@ class VisionPipeline:
 
     def get_ocr_engine(self):
         """按需唤醒视觉大脑的单例工厂"""
-        if VisionPipeline._ocr_engine is None:
+        if VisionPdfPipeline._ocr_engine is None:
             logger.info("首次触发，正在加载 PaddleOCR。")
             PaddleOCR = _load_paddleocr()
-            VisionPipeline._ocr_engine = PaddleOCR(use_angle_cls=True, lang="ch", use_gpu=False)
-        return VisionPipeline._ocr_engine
+            VisionPdfPipeline._ocr_engine = PaddleOCR(use_angle_cls=True, lang="ch", use_gpu=False)
+        return VisionPdfPipeline._ocr_engine
 
     def process_pdf(self, pdf_path: str) -> list[Fragment]:
         """

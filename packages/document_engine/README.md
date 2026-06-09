@@ -16,15 +16,12 @@ uv add "document-engine[formula,vision]" # 完整 OCR 应用能力
 
 ## 能力边界
 
-- `router.py`：文档路由器，根据文件类型自动分发给合适的 reader 或 engine。
-- `readers/`：文件格式入口，例如 CSV、Excel、DOCX。
-- `engines/`：复杂解析策略集合。
-  - `vector_engine`：矢量 PDF 解析。
-  - `vision_engine`：视觉 OCR 解析。
-- `components/`：图片、表格、公式、遮罩等 PDF 局部处理组件。
-- `assembler.py`：按页码和物理坐标重组解析碎片。
+- `router.py`：统一文档路由器，根据文件后缀分发到 reader 或 pipeline。
+- `readers/`：轻量文件格式读取器，例如 CSV、Excel、DOCX。
+- `pipelines/`：复杂解析流程，例如矢量 PDF、视觉 OCR PDF、MinerU 复杂文档解析。
+- `components/`：pipeline 内部组件，例如图片、表格、公式、遮罩。
 - `formatters/`：Markdown 清洗与 Obsidian frontmatter 包装。
-- `schema.py`：文档碎片（`Fragment`）等基础数据结构。
+- `schema.py`：Fragment 等基础数据结构。
 
 ## 调用示例
 
@@ -45,17 +42,12 @@ fragments_pdf = router.parse("paper.pdf")
 markdown_output = DocumentAssembler().assemble(fragments_pdf)
 ```
 
-如果你需要精细控制或使用特定功能：
+如果你需要精细控制或使用特定功能，推荐使用新的路径：
 
 ```python
-from document_engine.engines.vector_engine import VectorPipeline
-from document_engine.formatters.markdown_formatter import MarkdownFormatter
-from document_engine.formatters.obsidian_formatter import ObsidianWrapper
-
-engine = VectorPipeline(output_dir="output")
-fragments = engine.process_pdf("example.pdf")
-
-# 格式化...
+from document_engine.pipelines.vector_pdf_pipeline import VectorPdfPipeline
+from document_engine.readers.docx_reader import DocxReader
+from document_engine.readers.tabular_reader import TabularReader
 ```
 
 ## 与应用层的关系
@@ -72,7 +64,7 @@ apps/ocr_app
 ## 本地检查
 
 ```bash
-uv run pytest packages/document_engine/tests
+uv run pytest packages/document_engine/tests -q
 uv run ruff check packages/document_engine
 uv run ruff format packages/document_engine --check
 ```
