@@ -26,6 +26,7 @@ def run_pdf_to_markdown(
     output_dir.mkdir(parents=True, exist_ok=True)
     logger.info("系统启动，当前引擎模式: {}", mode.upper())
 
+    engine: VectorPipeline | VisionPipeline
     if mode == "vector":
         engine = VectorPipeline(output_dir=str(output_dir))
     elif mode == "vision":

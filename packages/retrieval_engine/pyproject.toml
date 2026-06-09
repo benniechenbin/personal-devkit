@@ -8,7 +8,6 @@ version = "0.1.0"
 description = "A small reusable SDK for vector retrieval, graph retrieval, and community indexing."
 readme = "README.md"
 requires-python = ">=3.11"
-authors = [{ name = "chenbin" }]
 dependencies = []
 
 [project.optional-dependencies]

@@ -79,6 +79,6 @@ class HttpxEngine:
             logger.exception(f"💥 引擎严重崩溃: {request.url}")
             return ScrapeResponse(success=False, url=request.url, error_message=str(e))
 
-    async def close(self):
+    async def close(self) -> None:
         """释放连接池资源"""
         await self.client.aclose()

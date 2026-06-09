@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 
 class MarkdownFormatter:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     def clean_text(self, raw_text: str) -> str:

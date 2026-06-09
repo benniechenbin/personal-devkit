@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from typing import Any
 
 from crawl_engine.schema import Crawl4AIRequest, ScrapeResponse
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -12,7 +13,7 @@ DEFAULT_USER_AGENT = (
 )
 
 
-def _load_crawl4ai():
+def _load_crawl4ai() -> tuple[Any, ...]:
     try:
         from crawl4ai import AsyncWebCrawler, BrowserConfig, CacheMode, CrawlerRunConfig
         from crawl4ai.content_filter_strategy import PruningContentFilter

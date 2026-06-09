@@ -5,7 +5,7 @@ from datetime import datetime
 class ObsidianWrapper:
     @staticmethod
     def inject_yaml_frontmatter(
-        body_text: str, source_filename: str, custom_tags: list | None = None
+        body_text: str, source_filename: str, custom_tags: list[str] | None = None
     ) -> str:
         """
         将纯净的 Markdown 文本包装为符合 Obsidian 契约的笔记格式

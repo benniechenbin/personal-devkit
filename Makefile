@@ -21,7 +21,7 @@ format:
 	uv run ruff format . --check
 
 type:
-	uv run mypy apps/ocr_app/src templates/agent_enterprise_boilerplate/src templates/python_project_boilerplate/src templates/_shared
+	uv run mypy apps/ocr_app/src templates/agent_enterprise_boilerplate/src templates/python_project_boilerplate/src templates/_shared packages/crawl_engine/src packages/document_engine/src
 
 type-retrieval:
 	uv run mypy packages/retrieval_engine/src

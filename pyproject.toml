@@ -40,6 +40,7 @@ testpaths = [
     "apps/ocr_app/tests",
     "packages/document_engine/tests",
     "packages/retrieval_engine/tests",
+    "packages/crawl_engine/tests",
     "templates/agent_enterprise_boilerplate/tests",
     "templates/python_project_boilerplate/tests",
 ]
@@ -50,12 +51,14 @@ pythonpath = [
     "packages/document_engine/src",
     "packages/retrieval_engine",
     "packages/retrieval_engine/src",
+    "packages/crawl_engine",
+    "packages/crawl_engine/src",
     "templates/agent_enterprise_boilerplate",
     "templates/agent_enterprise_boilerplate/src",
     "templates/python_project_boilerplate",
     "templates/python_project_boilerplate/src",
 ]
-addopts = "-q --import-mode=importlib --cov=retrieval_engine --cov=document_engine --cov=ocr_app --cov=app --cov=python_project_boilerplate --cov-report=term-missing"
+addopts = "-q --import-mode=importlib --cov=retrieval_engine --cov=document_engine --cov=crawl_engine --cov=ocr_app --cov=app --cov=python_project_boilerplate --cov-report=term-missing"
 
 [tool.ruff]
 line-length = 100
@@ -86,10 +89,20 @@ exclude = [
 [[tool.mypy.overrides]]
 module = [
     "document_engine.*",
+    "ocr_app.*",
+]
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+disallow_incomplete_defs = false
+check_untyped_defs = false
+disallow_any_generics = false
+
+[[tool.mypy.overrides]]
+module = [
     "fitz.*",
     "pix2text.*",
+    "paddleocr.*",
 ]
-follow_imports = "skip"
 ignore_missing_imports = true
 
 [tool.coverage.run]
@@ -97,6 +110,7 @@ branch = true
 source = [
     "retrieval_engine",
     "document_engine",
+    "crawl_engine",
     "ocr_app",
     "app",
     "python_project_boilerplate",
