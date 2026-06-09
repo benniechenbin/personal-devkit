@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Secret scan
         uses: gitleaks/gitleaks-action@v2
@@ -51,7 +53,7 @@ jobs:
         run: uv run ruff format . --check
 
       - name: Type check
-        run: uv run mypy apps/ocr_app/src templates/agent_enterprise_boilerplate/src templates/python_project_boilerplate/src templates/_shared
+        run: uv run mypy apps/ocr_app/src templates/agent_enterprise_boilerplate/src templates/python_project_boilerplate/src templates/_shared packages/crawl_engine/src packages/document_engine/src
 
       - name: Test
         run: uv run pytest
