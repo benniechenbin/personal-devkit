@@ -29,6 +29,7 @@ dist/
 
 # Local data and logs
 data/
+!**/tests/data/
 models/
 logs/
 .learnings/

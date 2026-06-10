@@ -8,7 +8,8 @@ class AdvisorService:
     def __init__(self):
         self.api_key = settings.openai_api_key
         self.model = settings.openai_model
-        self.client = OpenAI(api_key=self.api_key) if self.api_key else None
+        self.base_url = settings.llm_url
+        self.client = OpenAI(api_key=self.api_key, base_url=self.base_url) if self.api_key else None
 
     def get_advice(self, summary_text: str) -> str:
         """调用大语言模型（LLM）获取财务优化建议。"""

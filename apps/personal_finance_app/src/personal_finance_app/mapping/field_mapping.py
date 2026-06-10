@@ -3,10 +3,13 @@ DEFAULT_MAPPING = {
     "日期": "timestamp",
     "amount": "amount",
     "金额": "amount",
+    "总额": "amount",
     "direction": "direction",
     "收支": "direction",
+    "类型": "direction",
     "category": "category",
     "分类": "category",
+    "类别": "category",
     "description": "description",
     "描述": "description",
 }
