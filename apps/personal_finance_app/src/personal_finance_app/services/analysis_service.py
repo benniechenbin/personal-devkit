@@ -7,7 +7,7 @@ from personal_finance_app.mapping.field_mapping import DEFAULT_MAPPING
 
 
 class AnalysisService:
-    def __init__(self, mapping: dict[str, str] = None):
+    def __init__(self, mapping: dict[str, str] | None = None):
         self.mapping = mapping or DEFAULT_MAPPING
         self.builder = ReportBuilder(mapping=self.mapping)
 

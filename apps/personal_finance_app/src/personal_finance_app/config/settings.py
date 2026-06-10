@@ -23,8 +23,14 @@ class Settings(BaseSettings):
     应用设置和配置。
     """
 
-    app_name: str = "personal-finance-app"
-    app_env: Literal["development", "test", "production"] = "development"
+    app_name: str = Field(
+        default="personal-finance-app",
+        description="应用名称，用于启动横幅和日志标识。",
+    )
+    app_env: Literal["development", "test", "production"] = Field(
+        default="development",
+        description="运行环境，可选值：development、test、production。",
+    )
 
     log_dir: Path = Field(
         default=Path("logs"),
@@ -33,6 +39,11 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = Field(
         default="INFO",
         description="日志级别，可选值：DEBUG、INFO、WARNING、ERROR、CRITICAL。",
+    )
+
+    data_dir: Path = Field(
+        default=Path("data"),
+        description="数据目录。相对路径会基于项目根目录解析。",
     )
 
     # OpenAI configuration
@@ -54,6 +65,20 @@ class Settings(BaseSettings):
         if self.log_dir.is_absolute():
             return self.log_dir
         return BASE_DIR / self.log_dir
+
+    @property
+    def resolved_data_dir(self) -> Path:
+        if self.data_dir.is_absolute():
+            return self.data_dir
+        return BASE_DIR / self.data_dir
+
+    @property
+    def resolved_db_path(self) -> Path:
+        return self.resolved_data_dir / "finance.db"
+
+    @property
+    def resolved_report_dir(self) -> Path:
+        return self.resolved_data_dir / "reports"
 
 
 @lru_cache

@@ -1,84 +1,35 @@
-# personal-finance-app
+# Personal Finance App
 
-一个基于 Python 通用项目模板生成的轻量 Python 项目。
+个人财务分析与管理工具 (v0.2.0)。
 
-```text
-项目名：personal-finance-app
-包名：personal_finance_app
-源码：src/personal_finance_app
-```
+## 特性 (v0.2.0)
+- **Excel/CSV 账单导入**: 自动读取 `个人预算.xlsx` 中的 `交易` 页签。
+- **数据标准化**: 自动适配、清理并映射中文字段（支持“日期”、“总额”、“类别”等）。
+- **财务指标分析**: 汇总总流入、总流出、净流量，并按分类聚合开销。
+- **AI 理财建议**: 结合 OpenAI 接口，自动根据当月账单生成 3 条具体优化建议。
+- **历史记录持久化**: 将分析结果与标准化后的交易明细存入 SQLite (`data/finance.db`)。
+- **Markdown 月报归档**: 自动生成月度分析报告 (`data/reports/YYYY-MM-finance-report.md`)，作为后续分析的上下文语料。
 
 ## 快速开始
 
-```bash
-uv sync --extra dev
-make env-example
-cp .env.example .env
-make run
-```
+### 前置依赖
+确保安装了 [uv](https://github.com/astral-sh/uv)。
 
-两个等价入口：
-
-```bash
-uv run base-app
-uv run python -m personal_finance_app.main
-```
-
-## 开发命令
-
-| 命令 | 说明 |
-| :--- | :--- |
-| `make install` | 安装项目依赖和开发工具 |
-| `make run` | 通过 `base-app` 启动应用 |
-| `make test` | 运行测试并输出覆盖率 |
-| `make lint` | 自动修复 Ruff 问题并格式化代码 |
-| `make check` | 运行 Ruff、格式和 Mypy 检查 |
-| `make lock` | 检查 `uv.lock` 是否与项目配置一致 |
-| `make env-example` | 根据 `Settings` 字段生成 `.env.example` |
-| `make check-env-example` | 检查 `.env.example` 是否需要重新生成 |
-| `make clean` | 清理缓存和构建产物 |
-
-## Copier 同步
-
-项目由 Copier 生成，`.copier-answers.yml` 必须提交且不要手工修改。
-`project_name` 决定包目录，首次生成后应保持稳定；`copier update` 用于同步模板演进，不用于项目重命名。
-
-同步模板已发布版本：
-
-```bash
-uv tool run copier update
-```
-
-同步模板仓库最新提交：
-
-```bash
-uv tool run copier update --vcs-ref HEAD
-```
-
-## 配置
-
-`.env.example` 由 `src/personal_finance_app/config/settings.py` 的 `Settings` 字段生成，脚本不读取本地 `.env`。
-
-```env
-APP_NAME=personal-finance-app
-APP_ENV=development
-LOG_DIR=logs
-LOG_LEVEL=INFO
-```
-
-## Docker
-
+### 运行配置
+复制环境变量模板并填入你的 OpenAI API Key:
 ```bash
 cp .env.example .env
-docker compose up --build
 ```
 
-Dockerfile 使用 Debian slim 系列镜像，CI 会构建镜像、执行密钥扫描，并启动容器做冒烟检查。
+### 运行分析
+使用真实账本数据执行分析：
+```bash
+uv run personal-finance-app /path/to/你的个人预算.xlsx
+# 或者使用旧名
+uv run base-app /path/to/你的个人预算.xlsx
+```
 
-## 模板边界
-
-本项目来自 Python 通用项目模板，不包含 Agent、Runtime、Workflow、LangGraph。
-
-## 许可证
-
-MIT
+## 数据结构
+- **data/finance.db**: 存储分析快照、分类汇总及交易流水。
+- **data/reports/**: 存储 Markdown 格式的财务报告。
+- **logs/**: 存储应用运行日志。

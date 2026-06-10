@@ -29,8 +29,11 @@ def run_cli():
     try:
         result = service.generate_full_report(file_path)
         print("\n" + result.report.summary_text + "\n")
-        print("\n### 💡 AI 理财建议\n")
+        print("### 💡 AI 理财建议\n")
         print(result.advice)
+
+        print(f"\n✅ 报告已归档: {result.report_path}")
+        print(f"✅ 数据已存入数据库 (ID: {result.db_run_id})")
     except Exception as e:
         logger.error(f"Application error: {e}")
         sys.exit(1)
