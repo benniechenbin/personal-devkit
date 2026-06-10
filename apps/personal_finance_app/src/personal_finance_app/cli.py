@@ -27,7 +27,10 @@ def run_cli():
 
     service = FinanceReportService()
     try:
-        service.generate_full_report(file_path)
+        result = service.generate_full_report(file_path)
+        print("\n" + result.report.summary_text + "\n")
+        print("\n### 💡 AI 理财建议\n")
+        print(result.advice)
     except Exception as e:
         logger.error(f"Application error: {e}")
         sys.exit(1)

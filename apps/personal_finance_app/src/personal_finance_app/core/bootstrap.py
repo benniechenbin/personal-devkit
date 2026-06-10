@@ -2,7 +2,6 @@ import sys
 from pathlib import Path
 
 from personal_finance_app.config.settings import BASE_DIR, settings
-from personal_finance_app.core.banner import show_banner
 from personal_finance_app.observability.logger import logger, setup_logger
 
 
@@ -32,8 +31,6 @@ def _validate_env_vars() -> None:
 
 def bootstrap() -> None:
     """初始化项目通用服务与环境安检。"""
-    show_banner(text=settings.app_name, font="slant")
-
     # 0. 【第一优先级】点亮日志雷达，让后续的自检报错有迹可循
     log_dir = setup_logger(log_dir=settings.resolved_log_dir)
 

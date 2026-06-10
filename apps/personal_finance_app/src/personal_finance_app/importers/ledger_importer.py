@@ -16,8 +16,15 @@ class LedgerImporter:
             if suffix == ".csv":
                 df = pd.read_csv(self.file_path)
             else:
-                # 针对当前“个人预算.xlsx”模板，使用特定页签和表头行
-                df = pd.read_excel(self.file_path, sheet_name="交易", header=1)
+                # 针对当前“个人预算.xlsx”模板，尝试使用特定页签和表头行
+                try:
+                    df = pd.read_excel(self.file_path, sheet_name="交易", header=1)
+                except ValueError:
+                    logger.warning(
+                        f"Sheet '交易' not found in {self.file_path.name}, "
+                        "falling back to the first sheet."
+                    )
+                    df = pd.read_excel(self.file_path)
 
             # 过滤占位行 / 空行
             if "日期" in df.columns and "总额" in df.columns:

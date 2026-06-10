@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "personal-finance-app"
-version = "0.1.0"
+version = "0.2.0"
 description = "A lightweight Python project starter with settings, logging, and bootstrap wiring."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -37,7 +37,8 @@ banner = [
 ]
 
 [project.scripts]
-base-app = "personal_finance_app.main:main"
+personal-finance-app = "personal_finance_app.cli:run_cli"
+base-app = "personal_finance_app.cli:run_cli"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
