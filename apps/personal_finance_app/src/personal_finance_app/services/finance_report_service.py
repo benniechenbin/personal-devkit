@@ -42,20 +42,26 @@ class FinanceReportService:
         logger.info(f"Normalized {len(normalized_data)} records for analysis and storage.")
 
         # 2. Analyze
-        report = self.analysis_service.analyze(normalized_data)
+        # analysis_service 仍然接收字典列表
+        report = self.analysis_service.analyze([rec.model_dump() for rec in normalized_data])
 
         # 提取月份 (YYYY-MM)
         month_str = report.period_start.strftime("%Y-%m")
 
-        # 3. Advise
-        advice = self.advisor_service.get_advice(report.summary_text)
-
-        # 4. Archive to Markdown
-        report_path = self.report_gen.generate(month_str, report.summary_text, advice)
-
-        # 5. Persist to SQLite
+        # 3. Data Extraction (for Advise and Storage)
         summary_data = self._extract_summary(report)
         categories_data = self._extract_categories(report)
+
+        # 4. Advise
+        advice = self.advisor_service.get_advice(
+            report.summary_text,
+            categories=categories_data,
+        )
+
+        # 5. Archive to Markdown
+        report_path = self.report_gen.generate(month_str, report.summary_text, advice)
+
+        # 6. Persist to SQLite
         db_id = self.storage.save_analysis(
             month=month_str,
             summary=summary_data,

@@ -81,32 +81,43 @@ class SQLiteStore:
                 run_id = cursor.lastrowid
 
                 # 插入分类汇总
-                for cat in categories:
-                    cursor.execute(
-                        """
-                        INSERT INTO category_summaries (run_id, category, direction, amount)
-                        VALUES (?, ?, ?, ?)
-                    """,
-                        (run_id, cat["category"], cat["direction"], cat["amount"]),
+                category_rows = [
+                    (
+                        run_id,
+                        cat.get("category", "unknown"),
+                        cat.get("direction", "expense"),
+                        cat.get("amount", 0),
                     )
+                    for cat in categories
+                ]
+                cursor.executemany(
+                    """
+                    INSERT INTO category_summaries (run_id, category, direction, amount)
+                    VALUES (?, ?, ?, ?)
+                """,
+                    category_rows,
+                )
 
                 # 插入详细交易
-                for rec in raw_records:
-                    cursor.execute(
-                        """
-                        INSERT INTO transactions
-                        (run_id, timestamp, category, direction, amount, description)
-                        VALUES (?, ?, ?, ?, ?, ?)
-                    """,
-                        (
-                            run_id,
-                            str(rec.get("timestamp", "")),
-                            rec.get("category", "unknown"),
-                            rec.get("direction", "unknown"),
-                            rec.get("amount", 0),
-                            rec.get("description", ""),
-                        ),
+                transaction_rows = [
+                    (
+                        run_id,
+                        rec.timestamp,
+                        rec.category,
+                        rec.direction,
+                        rec.amount,
+                        rec.description,
                     )
+                    for rec in raw_records
+                ]
+                cursor.executemany(
+                    """
+                    INSERT INTO transactions
+                    (run_id, timestamp, category, direction, amount, description)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                    transaction_rows,
+                )
 
                 conn.commit()
                 logger.info(f"Successfully saved analysis for {month} (ID: {run_id}) to database.")
