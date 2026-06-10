@@ -27,7 +27,7 @@ class TransactionRecord(BaseModel):
     amount: float
     category: str = "未分类"
     description: str = ""
-    direction: Literal["in", "out"] = "out"
+    direction: Literal["in", "out", "neutral"] = "out"
 
     @field_validator("amount", mode="before")
     @classmethod
@@ -37,22 +37,22 @@ class TransactionRecord(BaseModel):
             return 0.0
         return float(v)
 
+    @field_validator("direction", mode="before")
+    @classmethod
+    def normalize_direction(cls, v: Any) -> str:
+        """将中英文方向统一为 in / out / neutral。"""
+        if v is None or pd.isna(v):
+            return "out"
 
-def normalize_record(record: dict) -> TransactionRecord:
-    """将原始记录转换为标准化字段格式。"""
+        value = str(v).strip().lower()
 
-    def get_val(keys, default=None):
-        for k in keys:
-            v = record.get(k)
-            if v is not None and not (isinstance(v, float) and pd.isna(v)):
-                return v
-        return default
+        if value in {"in", "income", "inflow", "收入", "入账", "+"}:
+            return "in"
 
-    data = {
-        "timestamp": str(get_val(["timestamp", "日期", "date"], default="")),
-        "amount": get_val(["amount", "金额", "总额"]),
-        "category": get_val(["category", "分类", "类别"], default="未分类"),
-        "description": get_val(["description", "描述", "说明"], default=""),
-        "direction": get_val(["direction", "收支", "类型"], default="out"),
-    }
-    return TransactionRecord(**data)
+        if value in {"out", "expense", "outflow", "支出", "出账", "-"}:
+            return "out"
+
+        if value in {"neutral", "transfer", "转账", "内部转账", "还款"}:
+            return "neutral"
+
+        return "out"
