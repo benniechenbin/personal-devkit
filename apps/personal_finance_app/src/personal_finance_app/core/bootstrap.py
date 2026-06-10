@@ -30,7 +30,7 @@ def _validate_env_vars() -> None:
     pass
 
 
-def init_workspace() -> None:
+def bootstrap() -> None:
     """初始化项目通用服务与环境安检。"""
     show_banner(text=settings.app_name, font="slant")
 
@@ -55,7 +55,7 @@ def init_workspace() -> None:
 
 
 def main() -> None:
-    init_workspace()
+    bootstrap()
 
     # 👇 从这里开始编写你的业务逻辑代码
     # logger.info("正在执行主任务...")
