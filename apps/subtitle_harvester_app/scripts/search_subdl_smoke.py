@@ -14,7 +14,7 @@ def main() -> None:
     if not settings.subdl_api_key:
         raise RuntimeError("缺少 SUBDL_API_KEY，请在 .env 中配置。")
 
-    input_path = settings.resolved_output_dir / "media_candidates_2026_06_all.json"
+    input_path = settings.resolved_output_dir / "test_subdl_known_candidates.json"
     output_path = settings.resolved_output_dir / "subtitle_search_results_subdl_smoke.json"
 
     provider = SubDLProvider(

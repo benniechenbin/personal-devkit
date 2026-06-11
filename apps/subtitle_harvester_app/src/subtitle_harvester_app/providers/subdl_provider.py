@@ -5,6 +5,7 @@ from typing import Any
 from urllib.parse import urljoin
 
 import httpx
+from loguru import logger
 
 from subtitle_harvester_app.providers.base import (
     DownloadResult,
@@ -61,6 +62,13 @@ class SubDLProvider:
         payload = response.json()
 
         if not payload.get("status"):
+            logger.debug(
+                "SubDL 返回空状态：title={} tmdb_id={} imdb_id={} payload={}",
+                candidate.title,
+                candidate.tmdb_id,
+                candidate.imdb_id,
+                payload,
+            )
             return []
 
         return self._parse_results(candidate, payload)
