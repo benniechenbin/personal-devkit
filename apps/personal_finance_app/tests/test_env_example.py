@@ -21,7 +21,7 @@ write_env_example = env_example_script.write_env_example
 
 
 def test_build_env_example_from_settings_fields() -> None:
-    content = build_env_example(Path("src/personal_finance_app/config/settings.py"))
+    content = build_env_example(ROOT_DIR / "src/personal_finance_app/config/settings.py")
 
     assert "# 应用名称，用于启动横幅和日志标识。" in content
     assert "APP_NAME=personal-finance-app" in content
@@ -53,7 +53,7 @@ class Settings:
 def test_write_env_example_reports_when_content_changes(tmp_path: Path) -> None:
     output_file = tmp_path / ".env.example"
 
-    settings_file = Path("src/personal_finance_app/config/settings.py")
+    settings_file = ROOT_DIR / "src/personal_finance_app/config/settings.py"
     changed = write_env_example(settings_file, output_file)
     unchanged = write_env_example(settings_file, output_file)
 

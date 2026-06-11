@@ -43,6 +43,7 @@ jobs:
       - name: Check env examples
         run: |
           cd apps/ocr_app && uv run python scripts/generate_env_example.py --check
+          cd ../../apps/personal_finance_app && uv run python scripts/generate_env_example.py --check
           cd ../../templates/python_project_boilerplate && uv run python scripts/generate_env_example.py --check
           cd ../../templates/agent_enterprise_boilerplate && uv run python scripts/generate_env_example.py --check
 
@@ -53,7 +54,7 @@ jobs:
         run: uv run ruff format . --check
 
       - name: Type check
-        run: uv run mypy apps/ocr_app/src templates/agent_enterprise_boilerplate/src templates/python_project_boilerplate/src templates/_shared packages/crawl_engine/src packages/document_engine/src
+        run: uv run mypy apps/ocr_app/src apps/personal_finance_app/src templates/agent_enterprise_boilerplate/src templates/python_project_boilerplate/src templates/_shared packages/crawl_engine/src packages/document_engine/src packages/analysis_engine/src
 
       - name: Test
         run: uv run pytest

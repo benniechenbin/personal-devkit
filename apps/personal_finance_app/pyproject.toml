@@ -17,8 +17,8 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-document-engine = { path = "../../packages/document_engine" }
-analysis-engine = { path = "../../packages/analysis_engine" }
+document-engine = { workspace = true }
+analysis-engine = { workspace = true }
 
 
 [tool.hatch.build.targets.wheel]

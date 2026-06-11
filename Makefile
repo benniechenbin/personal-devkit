@@ -11,6 +11,7 @@ sync-shared:
 
 check-env-example:
 	cd apps/ocr_app && uv run python scripts/generate_env_example.py --check
+	cd apps/personal_finance_app && uv run python scripts/generate_env_example.py --check
 	cd templates/python_project_boilerplate && uv run python scripts/generate_env_example.py --check
 	cd templates/agent_enterprise_boilerplate && uv run python scripts/generate_env_example.py --check
 
@@ -21,7 +22,7 @@ format:
 	uv run ruff format . --check
 
 type:
-	uv run mypy apps/ocr_app/src templates/agent_enterprise_boilerplate/src templates/python_project_boilerplate/src templates/_shared packages/crawl_engine/src packages/document_engine/src
+	uv run mypy apps/ocr_app/src apps/personal_finance_app/src templates/agent_enterprise_boilerplate/src templates/python_project_boilerplate/src templates/_shared packages/crawl_engine/src packages/document_engine/src packages/analysis_engine/src
 
 type-retrieval:
 	uv run mypy packages/retrieval_engine/src
