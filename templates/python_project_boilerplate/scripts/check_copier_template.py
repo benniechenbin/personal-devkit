@@ -71,9 +71,9 @@ def _generate_project(template_repo: Path, destination: Path, project_name: str)
 
 def _assert_generated_project(destination: Path, project_name: str, package_name: str) -> None:
     package_dir = destination / "src" / package_name
-    assert package_dir.is_dir(), f"Missing generated package directory: {package_dir}"
-    assert not (destination / "src" / "app").exists(), "Generated project still contains src/app"
-    assert (destination / ".copier-answers.yml").is_file(), "Missing Copier answers file"
+    assert package_dir.is_dir(), f"缺少生成的包目录：{package_dir}"
+    assert not (destination / "src" / "app").exists(), "生成项目仍然包含 src/app"
+    assert (destination / ".copier-answers.yml").is_file(), "缺少 Copier answers 文件"
 
     pyproject = (destination / "pyproject.toml").read_text(encoding="utf-8")
     assert f'name = "{project_name}"' in pyproject
@@ -90,7 +90,7 @@ def _initialize_project_repo(destination: Path) -> None:
         ["git", "config", "user.name", "Copier Project Check"],
         ["git", "config", "user.email", "copier-project-check@example.com"],
         ["git", "add", "."],
-        ["git", "commit", "-m", "Generated project"],
+        ["git", "commit", "-m", "生成项目"],
     ]
     for command in commands:
         _run(command, destination)

@@ -45,7 +45,7 @@ def test_get_advice_with_client_success(mock_settings, mock_openai):
 
     assert advice == "Test advice"
     mock_client.chat.completions.create.assert_called_once()
-    # Check if prompt contains categories
+    # 检查提示词是否包含分类信息
     args, kwargs = mock_client.chat.completions.create.call_args
     prompt = kwargs["messages"][1]["content"]
     assert "Food (expense): 100 元" in prompt

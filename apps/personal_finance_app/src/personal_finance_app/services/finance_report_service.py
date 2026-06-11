@@ -33,35 +33,35 @@ class FinanceReportService:
 
     def generate_full_report(self, file_path: Path) -> FinanceReportResult:
         """协调完整流程：导入 -> 标准化 -> 分析 -> 建议 -> 持久化 -> 归档。"""
-        # 1. Import
+        # 1. 导入
         importer = LedgerImporter(file_path)
         raw_data = importer.load_data()
 
-        # 1.5 Normalize
+        # 1.5 标准化
         normalized_data = [normalize_record(rec) for rec in raw_data]
-        logger.info(f"Normalized {len(normalized_data)} records for analysis and storage.")
+        logger.info(f"已标准化 {len(normalized_data)} 条记录，用于分析和存储。")
 
-        # 2. Analyze
-        # analysis_service 仍然接收字典列表
+        # 2. 分析
+        # 分析服务仍然接收字典列表
         report = self.analysis_service.analyze([rec.model_dump() for rec in normalized_data])
 
         # 提取月份 (YYYY-MM)
         month_str = report.period_start.strftime("%Y-%m")
 
-        # 3. Data Extraction (for Advise and Storage)
+        # 3. 提取建议和存储所需的数据
         summary_data = self._extract_summary(report)
         categories_data = self._extract_categories(report)
 
-        # 4. Advise
+        # 4. 生成建议
         advice = self.advisor_service.get_advice(
             report.summary_text,
             categories=categories_data,
         )
 
-        # 5. Archive to Markdown
+        # 5. 归档为 Markdown
         report_path = self.report_gen.generate(month_str, report.summary_text, advice)
 
-        # 6. Persist to SQLite
+        # 6. 持久化到 SQLite
         db_id = self.storage.save_analysis(
             month=month_str,
             summary=summary_data,

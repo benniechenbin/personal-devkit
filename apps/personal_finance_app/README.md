@@ -1,4 +1,4 @@
-# Personal Finance App
+# 个人财务应用
 
 个人财务分析与管理工具 (v0.2.0)。
 

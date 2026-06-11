@@ -24,7 +24,7 @@ def main() -> None:
         if exit_code:
             raise SystemExit(exit_code)
     except KeyboardInterrupt:
-        logger.info("Application interrupted.")
+        logger.info("应用已被中断。")
         raise SystemExit(130) from None
 
 

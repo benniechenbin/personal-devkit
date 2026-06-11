@@ -75,9 +75,7 @@ def sync_shared_files(*, check: bool = False) -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
-        description="Sync shared template maintenance files into self-contained templates."
-    )
+    parser = argparse.ArgumentParser(description="将共享模板维护文件同步到自包含模板中。")
     parser.add_argument(
         "--check",
         action="store_true",

@@ -56,3 +56,12 @@ class TransactionRecord(BaseModel):
             return "neutral"
 
         return "out"
+
+
+def normalize_record(raw_record: dict[str, Any]) -> TransactionRecord:
+    """将原始交易记录映射并标准化为 TransactionRecord。"""
+    mapped: dict[str, Any] = {}
+    for key, value in raw_record.items():
+        mapped_key = DEFAULT_MAPPING.get(key, key)
+        mapped[mapped_key] = value
+    return TransactionRecord(**mapped)

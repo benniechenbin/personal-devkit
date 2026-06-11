@@ -1,4 +1,4 @@
-# services/ocr_engine/formatters.py
+# 原路径：services/ocr_engine/formatters.py
 import logging
 import re
 

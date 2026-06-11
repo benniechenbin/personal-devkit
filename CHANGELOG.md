@@ -2,7 +2,7 @@
 
 本文件记录 `personal-devkit` monorepo 层面的重要变更，包括 workspace 结构、统一工具链、CI 配置，以及新增或移除 package/template 的记录。
 
-## Unreleased
+## 未发布
 
 - 增加 `templates/_shared/` 作为模板维护侧共享源头，并提供同步脚本；生成项目仍保持自包含，不新增运行时 common 包依赖。
 - 增加根目录 `Makefile` 检查入口，CI 补充共享模板同步、`.env.example`、格式化和 Copier 模板闭环检查。

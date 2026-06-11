@@ -27,7 +27,7 @@ class MarkdownReportGenerator:
 {advice}
 
 ---
-*本报告由 Personal Finance App 0.2.0 自动生成，作为后续分析的上下文语料。*
+*本报告由个人财务应用 0.2.0 自动生成，作为后续分析的上下文语料。*
 """
 
         try:

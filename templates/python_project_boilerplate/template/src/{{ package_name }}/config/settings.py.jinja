@@ -2,12 +2,13 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 def find_project_root(
-    current_path: Path, markers: tuple[str, ...] = ("pyproject.toml", "requirements.txt", ".git")
+    current_path: Path,
+    markers: tuple[str, ...] = ("pyproject.toml", "requirements.txt", ".git"),
 ) -> Path:
     for parent in current_path.parents:
         if any((parent / marker).exists() for marker in markers):
@@ -27,20 +28,27 @@ class Settings(BaseSettings):
 
     app_name: str = Field(
         default="{{ project_name }}",
-        description="应用名称，用于启动横幅和日志标识。",
+        description="应用名称，用于启动横幅和日志元数据。",
     )
     app_env: Literal["development", "test", "production"] = Field(
         default="development",
-        description="运行环境，可选值：development、test、production。",
+        description="运行环境：development、test 或 production。",
     )
-
     log_dir: Path = Field(
         default=Path("logs"),
         description="日志目录。相对路径会基于项目根目录解析。",
     )
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = Field(
         default="INFO",
-        description="日志级别，可选值：DEBUG、INFO、WARNING、ERROR、CRITICAL。",
+        description="日志级别：DEBUG、INFO、WARNING、ERROR 或 CRITICAL。",
+    )
+    external_api_key: SecretStr | None = Field(
+        default=None,
+        description="可选的外部服务 API Key。",
+    )
+    webhook_token: SecretStr | None = Field(
+        default=None,
+        description="可选的 Webhook Token。",
     )
 
     @property

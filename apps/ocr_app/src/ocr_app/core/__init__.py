@@ -1,1 +1,1 @@
-"""OCR app bootstrap package."""
+"""OCR 应用启动包。"""

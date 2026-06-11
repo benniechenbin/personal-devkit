@@ -84,9 +84,9 @@ def _validate_env_vars(settings: Settings) -> None:
 def _ensure_directories(settings: Settings) -> None:
     required_dirs: list[Path] = [
         settings.resolved_log_dir,
-        # BASE_DIR / "data",
-        # BASE_DIR / "data" / "input",
-        # BASE_DIR / "data" / "output",
+        # 可选：BASE_DIR / "data",
+        # 可选：BASE_DIR / "data" / "input",
+        # 可选：BASE_DIR / "data" / "output",
     ]
 
     for path in required_dirs:

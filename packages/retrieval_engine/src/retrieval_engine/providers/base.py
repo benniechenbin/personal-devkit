@@ -33,5 +33,5 @@ class LLMProvider(Protocol):
     """图谱抽取和总结流程使用的 LLM 调用协议。"""
 
     def complete(self, messages: Sequence[dict[str, str]], **kwargs) -> str:
-        """基于 chat-style messages 返回文本补全结果。"""
+        """基于聊天式消息返回文本补全结果。"""
         ...

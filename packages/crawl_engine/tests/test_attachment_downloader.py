@@ -173,7 +173,7 @@ def test_attachment_downloader_returns_failure_when_file_exists_without_overwrit
         assert result.success is False
         assert result.path == existing
         assert result.error_message is not None
-        assert "File already exists" in result.error_message
+        assert "文件已存在" in result.error_message
         assert existing.read_bytes() == b"old"
 
     asyncio.run(run())

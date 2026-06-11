@@ -1,4 +1,4 @@
-# services/ocr_engine/table_extractor.py
+# 原路径：services/ocr_engine/table_extractor.py
 import logging
 
 import fitz  # PyMuPDF

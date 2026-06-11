@@ -28,3 +28,14 @@ def test_environment_variables_override_defaults(monkeypatch) -> None:
     assert settings.app_env == "test"
     assert settings.log_level == "DEBUG"
     assert settings.resolved_log_dir == BASE_DIR / "custom-logs"
+
+
+def test_secret_settings_are_secret_str() -> None:
+    settings = Settings(external_api_key="api-key-value", webhook_token="token-value")
+
+    assert settings.external_api_key is not None
+    assert settings.external_api_key.get_secret_value() == "api-key-value"
+    assert "api-key-value" not in repr(settings.external_api_key)
+    assert settings.webhook_token is not None
+    assert settings.webhook_token.get_secret_value() == "token-value"
+    assert "token-value" not in repr(settings.webhook_token)

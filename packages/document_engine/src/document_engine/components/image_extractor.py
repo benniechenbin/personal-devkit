@@ -98,8 +98,8 @@ def detect_image_tiling(
         curr_rect = strip_rects[i]
 
         # 判断条件：
-        # A. 垂直方向紧密贴合 (y1 距离下一个 y0 小于 2 个单位)
-        # B. 水平方向宽度几乎一致 (宽度差小于 5 个单位)
+        # 条件一：垂直方向紧密贴合 (y1 距离下一个 y0 小于 2 个单位)
+        # 条件二：水平方向宽度几乎一致 (宽度差小于 5 个单位)
         y_gap = abs(curr_rect.y0 - prev_rect.y1)
         width_diff = abs(curr_rect.width - prev_rect.width)
 

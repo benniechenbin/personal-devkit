@@ -79,7 +79,7 @@ class TimeseriesCalculator:
                     name=f"Monthly Category Outflow: {row['category']}",
                     value=float(row["amount"]),
                     unit="元",
-                    description=f"Outflow for {row['category']} in {row['timestamp']}",
+                    description=f"{row['timestamp']} 的 {row['category']} 流出",
                 )
             )
         return facts
@@ -113,7 +113,7 @@ class TimeseriesCalculator:
                     value=float(monthly_total[period]),
                     change_rate=float(change),
                     unit="元",
-                    description=f"Month-over-Month outflow change for {period}",
+                    description=f"{period} 的流出环比变化",
                 )
             )
         return facts

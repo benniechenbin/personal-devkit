@@ -1,4 +1,4 @@
-# services/documents_intelligence/assembler.py
+# 原路径：services/documents_intelligence/assembler.py
 
 from .schema import Fragment
 

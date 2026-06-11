@@ -8,8 +8,8 @@ from python_project_boilerplate.observability.logger import logger, setup_logger
 def _ensure_directories() -> None:
     """防御 2：动态创建必要的物理目录（除日志外的业务目录）"""
     required_dirs: list[Path] = [
-        # BASE_DIR / "data" / "input",
-        # BASE_DIR / "data" / "output",
+        # 可选：BASE_DIR / "data" / "input",
+        # 可选：BASE_DIR / "data" / "output",
     ]
     for d in required_dirs:
         d.mkdir(parents=True, exist_ok=True)
@@ -17,7 +17,7 @@ def _ensure_directories() -> None:
 
 
 def _validate_env_vars() -> None:
-    """防御 3：核心配置自检 (Fail-Fast)"""
+    """防御 3：核心配置自检（快速失败）。"""
     # 在具体业务模板中添加那些“如果没配，往下跑一定会崩”的致命配置检查。
     pass
 
@@ -49,7 +49,7 @@ def main() -> None:
     init_workspace()
 
     # 👇 从这里开始编写你的业务逻辑代码
-    # logger.info("正在执行主任务...")
+    # 可选：logger.info("正在执行主任务...")
 
 
 if __name__ == "__main__":

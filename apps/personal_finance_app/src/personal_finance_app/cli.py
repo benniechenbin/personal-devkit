@@ -14,16 +14,16 @@ def run_cli():
     bootstrap()
     show_banner("FINANCE ANALYZER")
 
-    parser = argparse.ArgumentParser(description="Personal Finance CLI 0.2.0")
-    parser.add_argument("file_path", help="Path to the Excel/CSV bill file")
+    parser = argparse.ArgumentParser(description="个人财务命令行工具 0.2.0")
+    parser.add_argument("file_path", help="Excel/CSV 账单文件路径")
     args = parser.parse_args()
 
     file_path = Path(args.file_path)
     if not file_path.exists():
-        logger.error(f"File not found: {file_path}")
+        logger.error(f"未找到文件：{file_path}")
         sys.exit(1)
 
-    logger.info(f"Processing file: {file_path.name}")
+    logger.info(f"正在处理文件：{file_path.name}")
 
     service = FinanceReportService()
     try:
@@ -35,7 +35,7 @@ def run_cli():
         print(f"\n✅ 报告已归档: {result.report_path}")
         print(f"✅ 数据已存入数据库 (ID: {result.db_run_id})")
     except Exception as e:
-        logger.error(f"Application error: {e}")
+        logger.error(f"应用错误：{e}")
         sys.exit(1)
 
 

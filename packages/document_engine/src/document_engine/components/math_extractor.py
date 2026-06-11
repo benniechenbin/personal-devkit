@@ -1,4 +1,4 @@
-# services/ocr_engine/math_extractor.py
+# 原路径：services/ocr_engine/math_extractor.py
 import logging
 import os
 
@@ -34,7 +34,7 @@ class MathExtractor:
 
         try:
             # 核心调用：将图片喂给微型引擎
-            # expected_type='formula' 强制引擎将其作为纯公式处理，提高准度
+            # 指定 expected_type='formula'，强制引擎将其作为纯公式处理，提高准度
             result = self.p2t.recognize_formula(img_path)
 
             if not result:

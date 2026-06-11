@@ -23,7 +23,7 @@ async def fetch_url_as_markdown(
     js_code: Sequence[str] | None = None,
 ) -> ScrapeResponse:
     """
-    Fetch a web page and return its cleaned Markdown content.
+    抓取网页并返回清洗后的 Markdown 内容。
 
     This is a high-level convenience pipeline:
     URL -> Crawl4AIRequest -> Crawl4AIEngine -> ScrapeResponse.

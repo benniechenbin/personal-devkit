@@ -16,7 +16,7 @@ class AnalysisService:
         try:
             report = self.builder.build_report(raw_data)
             logger.info(
-                "Generated analysis report with {} metrics and {} anomalies.",
+                "已生成分析报告，包含 {} 个指标和 {} 个异常。",
                 len(report.metrics),
                 len(report.anomalies),
             )

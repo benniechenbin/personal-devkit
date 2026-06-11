@@ -17,7 +17,7 @@ def sanitize_filename(
     default: str = DEFAULT_FILENAME,
     replacement: str = "_",
 ) -> str:
-    """Clean a filename stem for safe filesystem usage."""
+    """清理文件名主干，使其适合文件系统使用。"""
     stem = Path(filename).stem.strip()
 
     safe_chars: list[str] = []
@@ -38,20 +38,20 @@ def sanitize_filename(
 
 
 def ensure_md_filename(filename: str, *, max_length: int = 80) -> str:
-    """Return a safe markdown filename with .md suffix."""
+    """返回带 .md 后缀的安全 Markdown 文件名。"""
     safe_stem = sanitize_filename(filename, max_length=max_length)
     return f"{safe_stem}{MARKDOWN_SUFFIX}"
 
 
 def ensure_directory(folder_path: PathLike) -> Path:
-    """Create a directory if needed and return it as a Path."""
+    """按需创建目录，并以 Path 形式返回。"""
     folder = Path(folder_path)
     folder.mkdir(parents=True, exist_ok=True)
     return folder
 
 
 def get_available_path(file_path: PathLike) -> Path:
-    """Return a non-existing path by appending _1, _2, etc. when needed."""
+    """必要时追加 _1、_2 等后缀，返回尚不存在的路径。"""
     path = Path(file_path)
 
     if not path.exists():
@@ -75,18 +75,18 @@ def save_markdown(
     encoding: str = DEFAULT_ENCODING,
 ) -> Path:
     """
-    Save content as a markdown file.
+    将内容保存为 Markdown 文件。
 
-    Args:
-        content: Markdown content.
-        folder_path: Target folder.
-        filename: File name or title.
-        overwrite: Whether to overwrite an existing file.
-        auto_rename: Whether to generate name_1.md when the file exists.
-        encoding: File encoding.
+    参数：
+        content: Markdown 内容。
+        folder_path: 目标目录。
+        filename: 文件名或标题。
+        overwrite: 是否覆盖已有文件。
+        auto_rename: 文件已存在时是否生成 name_1.md 形式的新文件名。
+        encoding: 文件编码。
 
-    Returns:
-        The saved file path.
+    返回：
+        已保存文件的路径。
     """
     folder = ensure_directory(folder_path)
     file_path = folder / ensure_md_filename(filename)
@@ -95,7 +95,7 @@ def save_markdown(
         if auto_rename:
             file_path = get_available_path(file_path)
         elif not overwrite:
-            raise FileExistsError(f"Markdown file already exists: {file_path}")
+            raise FileExistsError(f"Markdown 文件已存在：{file_path}")
 
     file_path.write_text(content, encoding=encoding)
     return file_path
@@ -107,17 +107,17 @@ def read_markdown(
     encoding: str = DEFAULT_ENCODING,
     check_suffix: bool = True,
 ) -> str:
-    """Read markdown content from a file."""
+    """从文件读取 Markdown 内容。"""
     path = Path(file_path)
 
     if not path.exists():
-        raise FileNotFoundError(f"Markdown file not found: {path}")
+        raise FileNotFoundError(f"未找到 Markdown 文件：{path}")
 
     if not path.is_file():
-        raise IsADirectoryError(f"Expected a file, got directory: {path}")
+        raise IsADirectoryError(f"期望文件，但得到目录：{path}")
 
     if check_suffix and path.suffix.lower() != MARKDOWN_SUFFIX:
-        raise ValueError(f"Expected a .md file, got: {path}")
+        raise ValueError(f"期望 .md 文件，但得到：{path}")
 
     return path.read_text(encoding=encoding)
 
@@ -129,11 +129,11 @@ def append_markdown(
     separator: str = "\n\n",
     encoding: str = DEFAULT_ENCODING,
 ) -> Path:
-    """Append markdown content to an existing file."""
+    """向已有文件追加 Markdown 内容。"""
     path = Path(file_path)
 
     if not path.exists():
-        raise FileNotFoundError(f"Markdown file not found: {path}")
+        raise FileNotFoundError(f"未找到 Markdown 文件：{path}")
 
     old_content = path.read_text(encoding=encoding)
     new_content = f"{old_content.rstrip()}{separator}{content.lstrip()}"
@@ -143,16 +143,16 @@ def append_markdown(
 
 
 def delete_markdown(file_path: PathLike, *, missing_ok: bool = True) -> bool:
-    """Delete a markdown file. Return True if the file was deleted."""
+    """删除 Markdown 文件；实际删除时返回 True。"""
     path = Path(file_path)
 
     if not path.exists():
         if missing_ok:
             return False
-        raise FileNotFoundError(f"Markdown file not found: {path}")
+        raise FileNotFoundError(f"未找到 Markdown 文件：{path}")
 
     if path.suffix.lower() != MARKDOWN_SUFFIX:
-        raise ValueError(f"Refuse to delete non-markdown file: {path}")
+        raise ValueError(f"拒绝删除非 Markdown 文件：{path}")
 
     path.unlink()
     return True
@@ -163,19 +163,19 @@ def list_markdown_files(
     *,
     recursive: bool = False,
 ) -> list[Path]:
-    """List markdown files in a folder."""
+    """列出目录中的 Markdown 文件。"""
     folder = Path(folder_path)
 
     if not folder.exists():
         return []
 
     if not folder.is_dir():
-        raise NotADirectoryError(f"Expected a directory, got: {folder}")
+        raise NotADirectoryError(f"期望目录，但得到：{folder}")
 
     pattern = "**/*.md" if recursive else "*.md"
     return sorted(path for path in folder.glob(pattern) if path.is_file())
 
 
 def join_markdown_sections(sections: Iterable[str]) -> str:
-    """Join markdown sections with blank lines."""
+    """用空行拼接多个 Markdown 段落。"""
     return "\n\n".join(section.strip() for section in sections if section and section.strip())

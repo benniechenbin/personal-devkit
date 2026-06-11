@@ -1,6 +1,6 @@
 # Python 通用项目模板
 
-一个由 Copier 驱动的轻量 Python 通用项目底座。模板不包含 Agent、Runtime、Workflow、LangGraph，适合快速创建普通库、CLI、脚本服务或轻量后端项目。
+一个由 Copier 驱动的轻量 Python 通用项目底座。模板不包含智能体、运行时、工作流或 LangGraph，适合快速创建普通库、CLI、脚本服务或轻量后端项目。
 
 当前仓库的默认参考实现使用：
 
@@ -106,14 +106,18 @@ uv run python -m python_project_boilerplate.main
 默认参考实现配置：
 
 ```env
-# 应用名称，用于启动横幅和日志标识。
+# 应用名称，用于启动横幅和日志元数据。
 APP_NAME=python-project-boilerplate
-# 运行环境，可选值：development、test、production。
+# 运行环境：development、test 或 production。
 APP_ENV=development
 # 日志目录。相对路径会基于项目根目录解析。
 LOG_DIR=logs
-# 日志级别，可选值：DEBUG、INFO、WARNING、ERROR、CRITICAL。
+# 日志级别：DEBUG、INFO、WARNING、ERROR 或 CRITICAL。
 LOG_LEVEL=INFO
+# 可选的外部服务 API Key。
+EXTERNAL_API_KEY=
+# 可选的 Webhook Token。
+WEBHOOK_TOKEN=
 ```
 
 `.env.example` 由 `Settings` 字段生成，生成脚本不读取本地 `.env`，secret-like 字段会生成空值。
@@ -151,7 +155,7 @@ CI 使用 TruffleHog OSS 扫描已验证和未知状态的 secret。`.env`、日
 
 ## 模板边界
 
-本模板是 Python Base Template，不包含 Agent、Runtime、Workflow、LangGraph。
+本模板是 Python 基础模板，不包含智能体、运行时、工作流或 LangGraph。
 如需多智能体或 LangGraph 编排，请使用 `agent_enterprise_boilerplate`。
 
 ## 许可证

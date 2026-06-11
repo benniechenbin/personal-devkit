@@ -10,8 +10,32 @@ DEFAULT_OUTPUT_FILE = Path(".env.example")
 SECRET_FIELD_MARKERS = ("api_key", "secret", "token", "password")
 
 
-def _literal_to_env_value(node: ast.AST | None, field_name: str) -> str:
-    if node is None or any(marker in field_name.lower() for marker in SECRET_FIELD_MARKERS):
+def _annotation_contains_secret(node: ast.AST | None) -> bool:
+    if node is None:
+        return False
+    if isinstance(node, ast.Name):
+        return node.id == "SecretStr"
+    if isinstance(node, ast.Attribute):
+        return node.attr == "SecretStr"
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
+        return _annotation_contains_secret(node.left) or _annotation_contains_secret(node.right)
+    if isinstance(node, ast.Subscript):
+        return _annotation_contains_secret(node.value) or _annotation_contains_secret(node.slice)
+    if isinstance(node, ast.Tuple | ast.List):
+        return any(_annotation_contains_secret(item) for item in node.elts)
+    return False
+
+
+def _literal_to_env_value(
+    node: ast.AST | None,
+    field_name: str,
+    annotation: ast.AST | None = None,
+) -> str:
+    if (
+        node is None
+        or _annotation_contains_secret(annotation)
+        or any(marker in field_name.lower() for marker in SECRET_FIELD_MARKERS)
+    ):
         return ""
 
     if isinstance(node, ast.Constant):
@@ -25,9 +49,9 @@ def _literal_to_env_value(node: ast.AST | None, field_name: str) -> str:
     if isinstance(node, ast.Call):
         func_name = _call_name(node.func)
         if func_name == "Path" and node.args:
-            return _literal_to_env_value(node.args[0], field_name)
+            return _literal_to_env_value(node.args[0], field_name, annotation)
         if func_name == "Field":
-            return _field_default_to_env_value(node, field_name)
+            return _field_default_to_env_value(node, field_name, annotation)
 
     try:
         value = ast.literal_eval(node)
@@ -45,14 +69,18 @@ def _call_name(node: ast.AST) -> str:
     return ""
 
 
-def _field_default_to_env_value(node: ast.Call, field_name: str) -> str:
+def _field_default_to_env_value(
+    node: ast.Call,
+    field_name: str,
+    annotation: ast.AST | None,
+) -> str:
     for keyword in node.keywords:
         if keyword.arg == "default":
-            return _literal_to_env_value(keyword.value, field_name)
+            return _literal_to_env_value(keyword.value, field_name, annotation)
         if keyword.arg == "default_factory":
             return ""
     if node.args:
-        return _literal_to_env_value(node.args[0], field_name)
+        return _literal_to_env_value(node.args[0], field_name, annotation)
     return ""
 
 
@@ -81,7 +109,7 @@ def build_env_example(settings_file: Path) -> str:
             continue
 
         env_name = field_name.upper()
-        env_value = _literal_to_env_value(node.value, field_name)
+        env_value = _literal_to_env_value(node.value, field_name, node.annotation)
         description = _field_description(node.value)
         if description:
             lines.append(f"# {description}")
@@ -94,7 +122,7 @@ def _find_settings_class(tree: ast.Module) -> ast.ClassDef:
     for node in tree.body:
         if isinstance(node, ast.ClassDef) and node.name == "Settings":
             return node
-    raise RuntimeError("未在配置文件中找到 Settings 类")
+    raise RuntimeError("未在配置文件中找到 Settings 类。")
 
 
 def write_env_example(settings_file: Path, output_file: Path) -> bool:
@@ -108,7 +136,7 @@ def write_env_example(settings_file: Path, output_file: Path) -> bool:
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Generate .env.example from src/{{ package_name }}/config/settings.py without reading .env."
+            "根据 src/{{ package_name }}/config/settings.py 生成 .env.example，不会读取本地 .env。"
         )
     )
     parser.add_argument("--settings-file", type=Path, default=DEFAULT_SETTINGS_FILE)

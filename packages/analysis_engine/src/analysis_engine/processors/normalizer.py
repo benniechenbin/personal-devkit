@@ -15,7 +15,7 @@ class DataNormalizer:
 
     def __init__(self, mapping: Optional[Dict[str, str]] = None):
         """
-        Args:
+        参数：
             mapping: 字典映射表，格式为 {"原始字段名": "StandardEntry字段名"}
                      StandardEntry字段名支持: timestamp, amount, direction, category, description
         """
@@ -49,7 +49,7 @@ class DataNormalizer:
         required_fields = ["timestamp", "amount", "category"]
         missing = [f for f in required_fields if f not in df.columns]
         if missing:
-            logger.error(f"Missing required fields after mapping: {missing}")
+            logger.error(f"字段映射后缺少必需字段：{missing}")
             # 过滤掉缺失关键信息的行
             df = df.dropna(subset=[f for f in required_fields if f in df.columns])
             if df.empty:
@@ -121,7 +121,7 @@ class DataNormalizer:
                 )
                 normalized_entries.append(entry)
             except Exception as e:
-                logger.warning(f"Failed to normalize row: {row.to_dict()}. Error: {e}")
+                logger.warning(f"标准化行失败：{row.to_dict()}。错误：{e}")
                 continue
 
         return normalized_entries

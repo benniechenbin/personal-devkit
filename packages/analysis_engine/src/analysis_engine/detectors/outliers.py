@@ -9,7 +9,7 @@ class OutlierDetector:
 
     def __init__(self, entries: list[StandardEntry], threshold: float = 2.0):
         """
-        Args:
+        参数：
             threshold: 阈值倍数。如果金额超过该分类均值的 threshold 倍，则视为异常。
         """
         self.entries = entries
@@ -65,7 +65,10 @@ class OutlierDetector:
                 AnomalyFact(
                     type="spike",
                     severity="warning",
-                    message=f"Detected unusual high outflow in '{row['category']}': {row['amount']} 元 (Category mean: {row['mean']:.2f})",
+                    message=(
+                        f"检测到 '{row['category']}' 分类存在异常高额流出："
+                        f"{row['amount']} 元（分类均值：{row['mean']:.2f}）"
+                    ),
                     related_entries=[related_entry],
                 )
             )

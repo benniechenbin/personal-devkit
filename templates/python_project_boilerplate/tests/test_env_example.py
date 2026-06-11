@@ -23,11 +23,13 @@ write_env_example = env_example_script.write_env_example
 def test_build_env_example_from_settings_fields() -> None:
     content = build_env_example(ROOT_DIR / "src/python_project_boilerplate/config/settings.py")
 
-    assert "# 应用名称，用于启动横幅和日志标识。" in content
+    assert "# 应用名称，用于启动横幅和日志元数据。" in content
     assert "APP_NAME=python-project-boilerplate" in content
     assert "APP_ENV=development" in content
     assert "LOG_DIR=logs" in content
     assert "LOG_LEVEL=INFO" in content
+    assert "EXTERNAL_API_KEY=" in content
+    assert "WEBHOOK_TOKEN=" in content
 
 
 def test_secret_like_fields_are_blank(tmp_path: Path) -> None:
@@ -47,6 +49,27 @@ class Settings:
     assert "APP_NAME=demo" in content
     assert "SERVICE_API_KEY=" in content
     assert "WEBHOOK_TOKEN=" in content
+    assert "should-not-leak" not in content
+
+
+def test_secretstr_fields_are_blank_even_when_name_is_not_secret_like(tmp_path: Path) -> None:
+    settings_file = tmp_path / "settings.py"
+    settings_file.write_text(
+        """
+from pydantic import Field, SecretStr
+
+
+class Settings:
+    app_name: str = "demo"
+    credential: SecretStr | None = Field(default="should-not-leak")
+""".strip(),
+        encoding="utf-8",
+    )
+
+    content = build_env_example(settings_file)
+
+    assert "APP_NAME=demo" in content
+    assert "CREDENTIAL=" in content
     assert "should-not-leak" not in content
 
 

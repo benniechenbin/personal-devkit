@@ -2,7 +2,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -46,8 +46,8 @@ class Settings(BaseSettings):
         description="数据目录。相对路径会基于项目根目录解析。",
     )
 
-    # OpenAI configuration
-    openai_api_key: str = ""
+    # 模型服务配置（OpenAI）
+    openai_api_key: SecretStr = SecretStr("")
     openai_model: str = "gpt-4o"
     llm_url: str = Field(
         default="https://api.openai.com/v1",

@@ -17,7 +17,7 @@ DEFAULT_FILENAME = "attachment"
 
 
 class AttachmentDownloader:
-    """Download known attachment URLs to a local directory."""
+    """将已知附件 URL 下载到本地目录。"""
 
     def __init__(self, client: httpx.AsyncClient | None = None) -> None:
         self.client = client or httpx.AsyncClient(
@@ -62,7 +62,7 @@ class AttachmentDownloader:
                         path=target_path,
                         file_name=file_name,
                         content_type=response.headers.get("content-type"),
-                        error_message=f"File already exists: {target_path}",
+                        error_message=f"文件已存在：{target_path}",
                         metadata=request.metadata,
                     )
 
@@ -80,7 +80,7 @@ class AttachmentDownloader:
             )
 
         except httpx.HTTPStatusError as exc:
-            logger.exception("Attachment download failed with HTTP error: %s", request.url)
+            logger.exception("附件下载遇到 HTTP 错误：%s", request.url)
             return DownloadedFile(
                 success=False,
                 url=request.url,
@@ -90,16 +90,16 @@ class AttachmentDownloader:
                 metadata=request.metadata,
             )
         except httpx.TimeoutException:
-            logger.exception("Attachment download timed out: %s", request.url)
+            logger.exception("附件下载超时：%s", request.url)
             return DownloadedFile(
                 success=False,
                 url=request.url,
                 file_name=request.file_name or "",
-                error_message="Timeout",
+                error_message="下载超时",
                 metadata=request.metadata,
             )
         except Exception as exc:
-            logger.exception("Attachment download crashed: %s", request.url)
+            logger.exception("附件下载异常崩溃：%s", request.url)
             return DownloadedFile(
                 success=False,
                 url=request.url,
