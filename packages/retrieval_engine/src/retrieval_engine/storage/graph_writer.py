@@ -3,12 +3,21 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Protocol, runtime_checkable
 
-from retrieval_engine.domain import GraphEntity, GraphRelation
+from retrieval_engine.domain import GraphEntity, GraphExtraction, GraphRelation
 
 
 @runtime_checkable
 class GraphWriter(Protocol):
     """把图谱抽取结果写入图谱后端的协议。"""
+
+    def upsert_extraction(
+        self,
+        extraction: GraphExtraction,
+        *,
+        source: str | None = None,
+    ) -> None:
+        """创建或更新一次图谱抽取结果。"""
+        ...
 
     def upsert_entity(self, entity: GraphEntity, *, source: str | None = None) -> None:
         """创建或更新一个图谱实体。"""

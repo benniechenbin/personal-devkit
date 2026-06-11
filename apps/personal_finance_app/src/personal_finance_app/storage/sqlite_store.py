@@ -1,16 +1,20 @@
 import sqlite3
+from collections.abc import Sequence
 from pathlib import Path
+from typing import Any
 
 from loguru import logger
 
+from personal_finance_app.mapping.field_mapping import TransactionRecord
+
 
 class SQLiteStore:
-    def __init__(self, db_path: str = "finance.db"):
+    def __init__(self, db_path: str = "finance.db") -> None:
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_db()
 
-    def _init_db(self):
+    def _init_db(self) -> None:
         """初始化数据库表结构。"""
         with sqlite3.connect(str(self.db_path)) as conn:
             cursor = conn.cursor()
@@ -57,10 +61,17 @@ class SQLiteStore:
             conn.commit()
         logger.info(f"SQLite database initialized at {self.db_path}")
 
-    def save_analysis(self, month: str, summary, categories, raw_records, report_path: str):
+    def save_analysis(
+        self,
+        month: str,
+        summary: dict[str, float],
+        categories: Sequence[dict[str, Any]],
+        raw_records: Sequence[TransactionRecord],
+        report_path: str,
+    ) -> int | None:
         """保存一次完整的分析记录到数据库。"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with sqlite3.connect(str(self.db_path)) as conn:
                 cursor = conn.cursor()
 
                 # 插入主运行记录

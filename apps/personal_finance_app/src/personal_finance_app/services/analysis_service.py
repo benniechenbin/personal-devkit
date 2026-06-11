@@ -1,5 +1,6 @@
 from typing import Any
 
+from analysis_engine.schema import AnalysisReport
 from analysis_engine.synthesis.report_builder import ReportBuilder
 from loguru import logger
 
@@ -7,11 +8,11 @@ from personal_finance_app.mapping.field_mapping import DEFAULT_MAPPING
 
 
 class AnalysisService:
-    def __init__(self, mapping: dict[str, str] | None = None):
+    def __init__(self, mapping: dict[str, str] | None = None) -> None:
         self.mapping = mapping or DEFAULT_MAPPING
         self.builder = ReportBuilder(mapping=self.mapping)
 
-    def analyze(self, raw_data: list[dict[str, Any]]):
+    def analyze(self, raw_data: list[dict[str, Any]]) -> AnalysisReport:
         """根据原始数据生成分析报告。"""
         try:
             report = self.builder.build_report(raw_data)

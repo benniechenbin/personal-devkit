@@ -1,5 +1,7 @@
 """向量、图谱、词法和缓存后端的存储适配器。"""
 
+from typing import Any
+
 from retrieval_engine.storage.base import NativeDocument, VectorStorage, VectorStore
 from retrieval_engine.storage.community import CommunityStorage
 from retrieval_engine.storage.graph import GraphStorage, GraphVectorStorage
@@ -20,7 +22,7 @@ __all__ = [
 ]
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
     if name == "QdrantVectorStorage":
         from retrieval_engine.storage.qdrant import QdrantVectorStorage
 

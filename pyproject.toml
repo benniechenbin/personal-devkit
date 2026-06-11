@@ -29,6 +29,7 @@ package = false
 members = [
     "apps/ocr_app",
     "apps/personal_finance_app",
+    "apps/subtitle_harvester_app",
     "packages/document_engine",
     "packages/retrieval_engine",
     "packages/crawl_engine",
@@ -41,6 +42,7 @@ members = [
 testpaths = [
     "apps/ocr_app/tests",
     "apps/personal_finance_app/tests",
+    "apps/subtitle_harvester_app/tests",
     "packages/document_engine/tests",
     "packages/retrieval_engine/tests",
     "packages/crawl_engine/tests",
@@ -53,6 +55,8 @@ pythonpath = [
     "apps/ocr_app/src",
     "apps/personal_finance_app",
     "apps/personal_finance_app/src",
+    "apps/subtitle_harvester_app",
+    "apps/subtitle_harvester_app/src",
     "packages/document_engine",
     "packages/document_engine/src",
     "packages/retrieval_engine",
@@ -66,7 +70,7 @@ pythonpath = [
     "templates/python_project_boilerplate",
     "templates/python_project_boilerplate/src",
 ]
-addopts = "-q --import-mode=importlib --cov=retrieval_engine --cov=document_engine --cov=crawl_engine --cov=analysis_engine --cov=ocr_app --cov=personal_finance_app --cov=app --cov=python_project_boilerplate --cov-report=term-missing"
+addopts = "-q --import-mode=importlib --cov=retrieval_engine --cov=document_engine --cov=crawl_engine --cov=analysis_engine --cov=ocr_app --cov=personal_finance_app --cov=subtitle_harvester_app --cov=app --cov=python_project_boilerplate --cov-report=term-missing"
 
 [tool.ruff]
 line-length = 100
@@ -96,8 +100,9 @@ exclude = [
 
 [[tool.mypy.overrides]]
 module = [
-    "document_engine.*",
-    "ocr_app.*",
+    "document_engine.components.*",
+    "document_engine.pipelines.*",
+    "document_engine.readers.docx_reader",
 ]
 disallow_untyped_defs = false
 disallow_untyped_calls = false
@@ -122,6 +127,7 @@ source = [
     "analysis_engine",
     "ocr_app",
     "personal_finance_app",
+    "subtitle_harvester_app",
     "app",
     "python_project_boilerplate",
 ]
@@ -133,9 +139,6 @@ omit = [
     "packages/retrieval_engine/src/retrieval_engine/storage/neo4j_writer.py",
     "packages/retrieval_engine/src/retrieval_engine/storage/qdrant.py",
     "packages/document_engine/src/document_engine/components/math_extractor.py",
-    "packages/document_engine/src/document_engine/engines/mineru_engine.py",
-    "packages/document_engine/src/document_engine/engines/vector_engine.py",
-    "packages/document_engine/src/document_engine/engines/vision_engine.py",
     "templates/agent_enterprise_boilerplate/src/app/agents/*",
     "templates/agent_enterprise_boilerplate/src/app/api/router.py",
     "templates/agent_enterprise_boilerplate/src/app/core/errors.py",
@@ -146,3 +149,7 @@ omit = [
     "templates/agent_enterprise_boilerplate/src/app/tools/search_tool.py",
     "templates/python_project_boilerplate/src/python_project_boilerplate/core/banner.py",
 ]
+
+[tool.coverage.report]
+fail_under = 60
+show_missing = true

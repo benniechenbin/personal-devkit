@@ -1,5 +1,6 @@
 import pandas as pd
-from ..schema import StandardEntry, AnomalyFact, FlowDirection
+
+from ..schema import AnomalyFact, FlowDirection, StandardEntry
 
 
 class OutlierDetector:
@@ -37,7 +38,7 @@ class OutlierDetector:
         if self.df.empty:
             return []
 
-        anomalies = []
+        anomalies: list[AnomalyFact] = []
 
         outflows = self.df[self.df["direction"] == FlowDirection.OUTFLOW.value]
         if outflows.empty:

@@ -15,7 +15,7 @@ def render_prompt(template: str, **variables: Any) -> str:
     except ModuleNotFoundError:
         return _render_with_lightweight_replacement(template, variables)
 
-    return Template(template).render(**variables)
+    return str(Template(template).render(**variables))
 
 
 def _render_with_lightweight_replacement(

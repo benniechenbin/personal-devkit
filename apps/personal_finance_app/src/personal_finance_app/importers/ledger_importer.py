@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pandas as pd
 from loguru import logger
@@ -32,7 +32,7 @@ class LedgerImporter:
             elif "date" in df.columns and "amount" in df.columns:
                 df = df.dropna(subset=["date", "amount"])
 
-            records = df.to_dict(orient="records")
+            records = cast(list[dict[str, Any]], df.to_dict(orient="records"))
             logger.info(f"Loaded {len(records)} raw records from {self.file_path.name}.")
             return records
         except Exception as e:

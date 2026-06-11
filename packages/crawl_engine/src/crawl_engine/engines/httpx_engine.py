@@ -16,9 +16,14 @@ DEFAULT_USER_AGENT = (
 class HttpxEngine:
     """轻量级并发爬虫引擎，极速抓取静态页面"""
 
-    def __init__(self, client: httpx.AsyncClient | None = None) -> None:
+    def __init__(
+        self,
+        client: httpx.AsyncClient | None = None,
+        *,
+        verify: bool | str = True,
+    ) -> None:
         self.client = client or httpx.AsyncClient(
-            verify=False,
+            verify=verify,
             timeout=10.0,
             limits=httpx.Limits(max_connections=50),
         )

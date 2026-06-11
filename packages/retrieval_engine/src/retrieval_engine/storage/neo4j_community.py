@@ -207,7 +207,7 @@ class Neo4jCommunityStorage:
                 confidence=summary.confidence,
             )
 
-    def _create_driver(self, *, uri: str, user: str, password: str):
+    def _create_driver(self, *, uri: str, user: str, password: str) -> Any:
         try:
             from neo4j import GraphDatabase
         except ModuleNotFoundError as exc:

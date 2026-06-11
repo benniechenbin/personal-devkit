@@ -28,10 +28,10 @@ class QdrantVectorStorage:
         self.batch_size = batch_size
         self.id_factory = id_factory or (lambda: uuid.uuid4().hex)
 
-        self._models = None
-        self._point_struct = None
-        self._vector_params = None
-        self._distance_enum = None
+        self._models: Any = None
+        self._point_struct: Any = None
+        self._vector_params: Any = None
+        self._distance_enum: Any = None
 
         if client is None:
             self.client = self._create_client(path)
@@ -116,7 +116,7 @@ class QdrantVectorStorage:
     def clear(self) -> None:
         self.replace_vectors([])
 
-    def _create_client(self, path: str | Path | None):
+    def _create_client(self, path: str | Path | None) -> Any:
         try:
             from qdrant_client import QdrantClient, models
             from qdrant_client.http.models import Distance, PointStruct, VectorParams
@@ -147,7 +147,7 @@ class QdrantVectorStorage:
         self._vector_params = VectorParams
         self._distance_enum = Distance
 
-    def _distance(self):
+    def _distance(self) -> Any:
         distance_name = self.distance.upper()
         if distance_name == "COSINE":
             return self._distance_enum.COSINE
@@ -184,7 +184,7 @@ class QdrantVectorStorage:
     def _get_alias_target(self) -> str | None:
         for alias in self.client.get_aliases().aliases:
             if alias.alias_name == self.collection_name:
-                return alias.collection_name
+                return str(alias.collection_name)
         return None
 
     def _ensure_collection(self) -> None:
@@ -207,7 +207,7 @@ class QdrantVectorStorage:
                 points=[self._point_from_record(record) for record in batch],
             )
 
-    def _point_from_record(self, record: VectorRecord):
+    def _point_from_record(self, record: VectorRecord) -> Any:
         payload = {
             **record.document.metadata,
             "page_content": record.document.page_content,

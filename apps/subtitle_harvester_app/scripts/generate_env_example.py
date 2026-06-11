@@ -5,6 +5,7 @@ import ast
 import sys
 from pathlib import Path
 
+APP_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SETTINGS_FILE = Path("src/subtitle_harvester_app/config/settings.py")
 DEFAULT_OUTPUT_FILE = Path(".env.example")
 SECRET_FIELD_MARKERS = ("api_key", "secret", "token", "password")
@@ -68,6 +69,7 @@ def _field_description(node: ast.AST | None) -> str:
 
 
 def build_env_example(settings_file: Path) -> str:
+    settings_file = _resolve_settings_file(settings_file)
     tree = ast.parse(settings_file.read_text(encoding="utf-8"))
     settings_class = _find_settings_class(tree)
 
@@ -95,6 +97,17 @@ def _find_settings_class(tree: ast.Module) -> ast.ClassDef:
         if isinstance(node, ast.ClassDef) and node.name == "Settings":
             return node
     raise RuntimeError("未在配置文件中找到 Settings 类。")
+
+
+def _resolve_settings_file(settings_file: Path) -> Path:
+    if settings_file.exists() or settings_file.is_absolute():
+        return settings_file
+
+    app_relative = APP_ROOT / settings_file
+    if app_relative.exists():
+        return app_relative
+
+    return settings_file
 
 
 def write_env_example(settings_file: Path, output_file: Path) -> bool:

@@ -23,9 +23,14 @@ class DownloadSizeLimitExceeded(RuntimeError):
 class AttachmentDownloader:
     """将已知附件 URL 下载到本地目录。"""
 
-    def __init__(self, client: httpx.AsyncClient | None = None) -> None:
+    def __init__(
+        self,
+        client: httpx.AsyncClient | None = None,
+        *,
+        verify: bool | str = True,
+    ) -> None:
         self.client = client or httpx.AsyncClient(
-            verify=False,
+            verify=verify,
             timeout=30.0,
             follow_redirects=True,
         )

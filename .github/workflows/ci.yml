@@ -38,26 +38,24 @@ jobs:
         run: uv sync --all-packages --all-extras --group dev --frozen
 
       - name: Check shared template sync
-        run: uv run python templates/_shared/sync_shared.py --check
+        run: make sync-shared
 
       - name: Check env examples
-        run: |
-          cd apps/ocr_app && uv run python scripts/generate_env_example.py --check
-          cd ../../apps/personal_finance_app && uv run python scripts/generate_env_example.py --check
-          cd ../../templates/python_project_boilerplate && uv run python scripts/generate_env_example.py --check
-          cd ../../templates/agent_enterprise_boilerplate && uv run python scripts/generate_env_example.py --check
+        run: make check-env-example
 
       - name: Lint
-        run: uv run ruff check .
+        run: make lint
 
       - name: Format check
-        run: uv run ruff format . --check
+        run: make format
 
       - name: Type check
-        run: uv run mypy apps/ocr_app/src apps/personal_finance_app/src templates/agent_enterprise_boilerplate/src templates/python_project_boilerplate/src templates/_shared packages/crawl_engine/src packages/document_engine/src packages/analysis_engine/src
+        run: |
+          make type
+          make type-retrieval
 
       - name: Test
-        run: uv run pytest
+        run: make test
 
       - name: Check Copier template
         run: uv run python templates/python_project_boilerplate/scripts/check_copier_template.py

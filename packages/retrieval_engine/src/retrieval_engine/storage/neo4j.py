@@ -240,7 +240,7 @@ class Neo4jGraphStorage:
             for row in rows
         ]
 
-    def _create_driver(self, *, uri: str, user: str, password: str):
+    def _create_driver(self, *, uri: str, user: str, password: str) -> Any:
         try:
             from neo4j import GraphDatabase
         except ModuleNotFoundError as exc:

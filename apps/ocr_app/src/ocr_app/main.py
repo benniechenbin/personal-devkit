@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+from typing import Any, cast
 
 from document_engine.assembler import DocumentAssembler
-from document_engine.engines.vector_engine import VectorPipeline
-from document_engine.engines.vision_engine import VisionPipeline
 from document_engine.formatters.markdown_formatter import MarkdownFormatter
 from document_engine.formatters.obsidian_formatter import ObsidianWrapper
+from document_engine.pipelines.vector_pdf_pipeline import VectorPdfPipeline
+from document_engine.pipelines.vision_pdf_pipeline import VisionPdfPipeline
 
 from ocr_app.config.settings import Settings, get_settings
 from ocr_app.core.bootstrap import init_workspace
@@ -26,11 +27,13 @@ def run_pdf_to_markdown(
     output_dir.mkdir(parents=True, exist_ok=True)
     logger.info("系统启动，当前引擎模式: {}", mode.upper())
 
-    engine: VectorPipeline | VisionPipeline
+    engine: VectorPdfPipeline | VisionPdfPipeline
     if mode == "vector":
-        engine = VectorPipeline(output_dir=str(output_dir))
+        vector_pipeline_cls = cast(Any, VectorPdfPipeline)
+        engine = cast(VectorPdfPipeline, vector_pipeline_cls(output_dir=str(output_dir)))
     elif mode == "vision":
-        engine = VisionPipeline(output_dir=str(output_dir))
+        vision_pipeline_cls = cast(Any, VisionPdfPipeline)
+        engine = cast(VisionPdfPipeline, vision_pipeline_cls(output_dir=str(output_dir)))
     else:
         raise ValueError(f"未知文档解析模式: {mode}")
 

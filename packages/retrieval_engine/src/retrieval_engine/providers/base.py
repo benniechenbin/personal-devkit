@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 from retrieval_engine.domain import DocumentChunk
 
@@ -32,6 +32,6 @@ class RerankerProvider(Protocol):
 class LLMProvider(Protocol):
     """图谱抽取和总结流程使用的 LLM 调用协议。"""
 
-    def complete(self, messages: Sequence[dict[str, str]], **kwargs) -> str:
+    def complete(self, messages: Sequence[dict[str, str]], **kwargs: Any) -> str:
         """基于聊天式消息返回文本补全结果。"""
         ...

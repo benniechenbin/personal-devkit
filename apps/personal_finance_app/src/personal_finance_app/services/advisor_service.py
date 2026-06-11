@@ -1,12 +1,20 @@
+from typing import Any
+
 from loguru import logger
 from openai import OpenAI
+from pydantic import SecretStr
 
 from personal_finance_app.config import settings
 
 
 class AdvisorService:
-    def __init__(self):
-        self.api_key = settings.openai_api_key
+    def __init__(self) -> None:
+        raw_api_key = settings.openai_api_key
+        self.api_key = (
+            raw_api_key.get_secret_value()
+            if isinstance(raw_api_key, SecretStr)
+            else str(raw_api_key or "")
+        )
         self.model = settings.openai_model
         self.base_url = settings.llm_url
         self.client = OpenAI(api_key=self.api_key, base_url=self.base_url) if self.api_key else None
@@ -14,7 +22,7 @@ class AdvisorService:
     def get_advice(
         self,
         summary_text: str,
-        categories: list[dict] | None = None,
+        categories: list[dict[str, Any]] | None = None,
     ) -> str:
         """调用大语言模型（LLM）获取财务优化建议。"""
         if not self.client:
@@ -60,12 +68,12 @@ class AdvisorService:
             )
 
             insights = response.choices[0].message.content
-            return insights
+            return insights or ""
         except Exception as e:
             logger.error(f"Failed to get LLM insights: {e}")
             return f"Error getting AI advice: {e}"
 
-    def _format_categories(self, categories: list[dict] | None) -> str:
+    def _format_categories(self, categories: list[dict[str, Any]] | None) -> str:
         """将分类数据格式化为紧凑文本。"""
         if not categories:
             return "暂无分类支出明细。"

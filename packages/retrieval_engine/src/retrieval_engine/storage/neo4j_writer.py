@@ -234,7 +234,7 @@ class Neo4jGraphWriter:
         vector = self.embedding_provider.embed_query(text)
         return [float(value) for value in vector]
 
-    def _create_driver(self, *, uri: str, user: str, password: str):
+    def _create_driver(self, *, uri: str, user: str, password: str) -> Any:
         try:
             from neo4j import GraphDatabase
         except ModuleNotFoundError as exc:

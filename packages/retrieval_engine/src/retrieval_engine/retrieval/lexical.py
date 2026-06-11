@@ -3,10 +3,15 @@ from __future__ import annotations
 import json
 from collections.abc import Callable, Sequence
 from pathlib import Path
+from typing import Protocol, cast
 
 from retrieval_engine.domain import DocumentChunk, ScoredDocument
 
 Tokenizer = Callable[[str], list[str]]
+
+
+class BM25Model(Protocol):
+    def get_scores(self, query_tokens: Sequence[str]) -> Sequence[float]: ...
 
 
 def default_tokenize(text: str) -> list[str]:
@@ -14,7 +19,7 @@ def default_tokenize(text: str) -> list[str]:
         import jieba
     except ModuleNotFoundError:
         return text.split() or [text]
-    return jieba.lcut(text)
+    return cast(list[str], jieba.lcut(text))
 
 
 class BM25Retriever:
@@ -28,7 +33,7 @@ class BM25Retriever:
     ) -> None:
         self.tokenizer = tokenizer or default_tokenize
         self.documents: list[DocumentChunk] = []
-        self._model = None
+        self._model: BM25Model | None = None
         self.set_corpus(documents)
 
     @classmethod
@@ -88,6 +93,8 @@ class BM25Retriever:
         return self._search_with_token_overlap(query, top_k)
 
     def _search_with_bm25(self, query: str, top_k: int) -> list[ScoredDocument]:
+        if self._model is None:
+            return []
         tokens = self.tokenizer(query)
         scores = self._model.get_scores(tokens)
         ranked = sorted(

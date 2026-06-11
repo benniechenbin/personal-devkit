@@ -9,7 +9,7 @@ from personal_finance_app.core.bootstrap import bootstrap
 from personal_finance_app.services.finance_report_service import FinanceReportService
 
 
-def run_cli():
+def run_cli() -> None:
     """CLI 入口函数。"""
     bootstrap()
     show_banner("FINANCE ANALYZER")
@@ -28,7 +28,8 @@ def run_cli():
     service = FinanceReportService()
     try:
         result = service.generate_full_report(file_path)
-        print("\n" + result.report.summary_text + "\n")
+        summary_text = result.report.summary_text or ""
+        print("\n" + summary_text + "\n")
         print("### 💡 AI 理财建议\n")
         print(result.advice)
 

@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from analysis_engine.schema import AnalysisReport
 from loguru import logger
 
 from personal_finance_app.config import settings
@@ -18,14 +19,14 @@ class FinanceReportResult:
     source_file: Path
     month: str
     raw_record_count: int
-    report: Any
+    report: AnalysisReport
     advice: str
     db_run_id: int | None = None
     report_path: Path | None = None
 
 
 class FinanceReportService:
-    def __init__(self):
+    def __init__(self) -> None:
         self.analysis_service = AnalysisService()
         self.advisor_service = AdvisorService()
         self.storage = SQLiteStore(db_path=str(settings.resolved_db_path))
@@ -47,6 +48,7 @@ class FinanceReportService:
 
         # 提取月份 (YYYY-MM)
         month_str = report.period_start.strftime("%Y-%m")
+        summary_text = report.summary_text or ""
 
         # 3. 提取建议和存储所需的数据
         summary_data = self._extract_summary(report)
@@ -54,12 +56,12 @@ class FinanceReportService:
 
         # 4. 生成建议
         advice = self.advisor_service.get_advice(
-            report.summary_text,
+            summary_text,
             categories=categories_data,
         )
 
         # 5. 归档为 Markdown
-        report_path = self.report_gen.generate(month_str, report.summary_text, advice)
+        report_path = self.report_gen.generate(month_str, summary_text, advice)
 
         # 6. 持久化到 SQLite
         db_id = self.storage.save_analysis(
@@ -80,19 +82,19 @@ class FinanceReportService:
             report_path=report_path,
         )
 
-    def _extract_summary(self, report) -> dict[str, float]:
+    def _extract_summary(self, report: AnalysisReport) -> dict[str, float]:
         """从分析报告中提取核心总计指标。"""
         data = {"total_income": 0.0, "total_expense": 0.0, "net_flow": 0.0}
         for m in report.metrics:
             if m.name == "Total Inflow":
-                data["total_income"] = m.value
+                data["total_income"] = float(m.value)
             elif m.name == "Total Outflow":
-                data["total_expense"] = m.value
+                data["total_expense"] = float(m.value)
             elif m.name == "Net Flow":
-                data["net_flow"] = m.value
+                data["net_flow"] = float(m.value)
         return data
 
-    def _extract_categories(self, report) -> list[dict[str, Any]]:
+    def _extract_categories(self, report: AnalysisReport) -> list[dict[str, Any]]:
         """从分析报告中提取分类支出汇总。"""
         categories = []
         prefix = "Monthly Category Outflow: "
