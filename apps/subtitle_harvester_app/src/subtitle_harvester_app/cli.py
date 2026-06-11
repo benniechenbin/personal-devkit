@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
 
@@ -11,24 +12,38 @@ from subtitle_harvester_app.outputs.json_writer import write_candidates_json
 from subtitle_harvester_app.schema import MediaType
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="从 TMDb 获取影视候选片单，并输出 JSON。",
+        description="Fetch movie and TV subtitle candidates from TMDb and write JSON.",
     )
     parser.add_argument("--year", type=int, default=datetime.now().year)
-    parser.add_argument("--month", type=int, default=None)
+    parser.add_argument("--month", type=_month, default=None)
     parser.add_argument(
         "--media-type",
         choices=["movie", "tv", "all"],
         default="all",
     )
-    parser.add_argument("--max-pages", type=int, default=None)
+    parser.add_argument("--max-pages", type=_positive_int, default=None)
     parser.add_argument("--output", type=Path, default=None)
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
-def main() -> None:
-    args = parse_args()
+def _month(value: str) -> int:
+    month = int(value)
+    if month < 1 or month > 12:
+        raise argparse.ArgumentTypeError("month must be between 1 and 12")
+    return month
+
+
+def _positive_int(value: str) -> int:
+    parsed = int(value)
+    if parsed < 1:
+        raise argparse.ArgumentTypeError("value must be greater than or equal to 1")
+    return parsed
+
+
+def main(argv: Sequence[str] | None = None) -> None:
+    args = parse_args(argv)
     settings = init_workspace(get_settings())
 
     media_types: tuple[MediaType, ...]
@@ -44,7 +59,9 @@ def main() -> None:
     )
     output_path = args.output or default_output
 
-    api_key = settings.tmdb_api_key.get_secret_value()
+    if settings.tmdb_api_key is None:
+        raise RuntimeError("Missing TMDB_API_KEY in environment or .env file.")
+    api_key = settings.tmdb_api_key.get_secret_value().strip()
     client = TmdbDiscoveryClient(
         api_key=api_key,
         language=settings.tmdb_language,
@@ -63,8 +80,8 @@ def main() -> None:
 
     write_candidates_json(candidates, output_path)
 
-    print(f"✅ 已生成候选片单：{output_path}")
-    print(f"📦 共 {len(candidates)} 条")
+    print(f"Generated subtitle candidate list: {output_path}")
+    print(f"Total candidates: {len(candidates)}")
 
 
 if __name__ == "__main__":

@@ -24,4 +24,4 @@ ENV PATH="/app/.venv/bin:$PATH"
 COPY pyproject.toml ./
 COPY src ./src
 
-CMD ["base-app"]
+CMD ["subtitle-harvester-app"]

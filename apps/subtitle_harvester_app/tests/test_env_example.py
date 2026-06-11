@@ -23,11 +23,16 @@ write_env_example = env_example_script.write_env_example
 def test_build_env_example_from_settings_fields() -> None:
     content = build_env_example(Path("src/subtitle_harvester_app/config/settings.py"))
 
-    assert "# 应用名称，用于启动横幅和日志标识。" in content
+    assert "# Application name used in logs and runtime metadata." in content
     assert "APP_NAME=subtitle-harvester-app" in content
     assert "APP_ENV=development" in content
     assert "LOG_DIR=logs" in content
+    assert "OUTPUT_DIR=output" in content
     assert "LOG_LEVEL=INFO" in content
+    assert "TMDB_API_KEY=" in content
+    assert "TMDB_LANGUAGE=zh-CN" in content
+    assert "TMDB_REGION=CN" in content
+    assert "TMDB_MAX_PAGES=3" in content
 
 
 def test_secret_like_fields_are_blank(tmp_path: Path) -> None:

@@ -71,7 +71,7 @@ def build_env_example(settings_file: Path) -> str:
     tree = ast.parse(settings_file.read_text(encoding="utf-8"))
     settings_class = _find_settings_class(tree)
 
-    lines = ["# ====== 应用配置 ======"]
+    lines = ["# ====== Application configuration ======"]
     for node in settings_class.body:
         if not isinstance(node, ast.AnnAssign) or not isinstance(node.target, ast.Name):
             continue
@@ -94,7 +94,7 @@ def _find_settings_class(tree: ast.Module) -> ast.ClassDef:
     for node in tree.body:
         if isinstance(node, ast.ClassDef) and node.name == "Settings":
             return node
-    raise RuntimeError("未在配置文件中找到 Settings 类")
+    raise RuntimeError("Could not find Settings class in settings file.")
 
 
 def write_env_example(settings_file: Path, output_file: Path) -> bool:
@@ -107,7 +107,7 @@ def write_env_example(settings_file: Path, output_file: Path) -> bool:
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description=("Generate .env.example from src/subtitle_harvester_app/config/settings.py")
+        description="Generate .env.example from src/subtitle_harvester_app/config/settings.py"
     )
     parser.add_argument("--settings-file", type=Path, default=DEFAULT_SETTINGS_FILE)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT_FILE)

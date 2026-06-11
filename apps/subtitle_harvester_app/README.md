@@ -1,84 +1,101 @@
 # subtitle-harvester-app
 
-一个基于 Python 通用项目模板生成的轻量 Python 项目。
+Harvest movie and TV metadata candidates from TMDb for subtitle collection workflows.
 
-```text
-项目名：subtitle-harvester-app
-包名：subtitle_harvester_app
-源码：src/subtitle_harvester_app
-```
+The app queries TMDb discovery endpoints for a year or month, normalizes the results into a small JSON payload, and writes the candidate list to `output/` by default.
 
-## 快速开始
+## Features
+
+- Fetch movie and TV candidates by year or month.
+- Include TMDb IDs, IMDb IDs, titles, original titles, dates, languages, overviews, and aliases.
+- Write deterministic UTF-8 JSON output for downstream subtitle tooling.
+- Support either a TMDb v3 API key or a TMDb Read Access Token.
+
+## Quick Start
 
 ```bash
 uv sync --extra dev
-make env-example
 cp .env.example .env
-make run
 ```
 
-两个等价入口：
+Set `TMDB_API_KEY` in `.env`, then run:
 
 ```bash
-uv run base-app
-uv run python -m subtitle_harvester_app.main
+uv run subtitle-harvester-app --year 2026 --month 6 --media-type all
 ```
 
-## 开发命令
+The default output path is:
 
-| 命令 | 说明 |
-| :--- | :--- |
-| `make install` | 安装项目依赖和开发工具 |
-| `make run` | 通过 `base-app` 启动应用 |
-| `make test` | 运行测试并输出覆盖率 |
-| `make lint` | 自动修复 Ruff 问题并格式化代码 |
-| `make check` | 运行 Ruff、格式和 Mypy 检查 |
-| `make lock` | 检查 `uv.lock` 是否与项目配置一致 |
-| `make env-example` | 根据 `Settings` 字段生成 `.env.example` |
-| `make check-env-example` | 检查 `.env.example` 是否需要重新生成 |
-| `make clean` | 清理缓存和构建产物 |
+```text
+output/media_candidates_<year>_<month>_<media-type>.json
+```
 
-## Copier 同步
-
-项目由 Copier 生成，`.copier-answers.yml` 必须提交且不要手工修改。
-`project_name` 决定包目录，首次生成后应保持稳定；`copier update` 用于同步模板演进，不用于项目重命名。
-
-同步模板已发布版本：
+## CLI
 
 ```bash
-uv tool run copier update
+uv run subtitle-harvester-app --help
 ```
 
-同步模板仓库最新提交：
+Common examples:
 
 ```bash
-uv tool run copier update --vcs-ref HEAD
+uv run subtitle-harvester-app --year 2026 --media-type movie
+uv run subtitle-harvester-app --year 2026 --month 6 --media-type tv --max-pages 5
+uv run subtitle-harvester-app --year 2026 --output output/candidates.json
 ```
 
-## 配置
+## Configuration
 
-`.env.example` 由 `src/subtitle_harvester_app/config/settings.py` 的 `Settings` 字段生成，脚本不读取本地 `.env`。
+`.env.example` is generated from `src/subtitle_harvester_app/config/settings.py`.
 
 ```env
 APP_NAME=subtitle-harvester-app
 APP_ENV=development
 LOG_DIR=logs
+OUTPUT_DIR=output
 LOG_LEVEL=INFO
+TMDB_API_KEY=
+TMDB_LANGUAGE=zh-CN
+TMDB_REGION=CN
+TMDB_MAX_PAGES=3
 ```
+
+`TMDB_API_KEY` can be either:
+
+- a TMDb v3 API key, sent as the `api_key` query parameter
+- a TMDb Read Access Token, sent as `Authorization: Bearer ...`
+
+## Development
+
+```bash
+make install
+make env-example
+make test
+make check
+```
+
+Useful Make targets:
+
+| Command | Description |
+| :--- | :--- |
+| `make install` | Install project and development dependencies. |
+| `make run` | Run the CLI with default arguments. |
+| `make test` | Run pytest with coverage. |
+| `make lint` | Run Ruff fixes and formatting. |
+| `make check` | Run Ruff and Mypy checks. |
+| `make env-example` | Regenerate `.env.example` from settings. |
+| `make check-env-example` | Check whether `.env.example` is up to date. |
+| `make clean` | Remove local caches and build artifacts. |
 
 ## Docker
 
 ```bash
 cp .env.example .env
-docker compose up --build
+docker compose run --rm app
 ```
 
-Dockerfile 使用 Debian slim 系列镜像，CI 会构建镜像、执行密钥扫描，并启动容器做冒烟检查。
+The compose service mounts local `logs/` and `output/` directories into the container.
 
-## 模板边界
-
-本项目来自 Python 通用项目模板，不包含 Agent、Runtime、Workflow、LangGraph。
-
-## 许可证
+## License
 
 MIT

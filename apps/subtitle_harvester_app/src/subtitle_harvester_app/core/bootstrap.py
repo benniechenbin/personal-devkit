@@ -9,7 +9,7 @@ def init_workspace(app_settings: Settings | None = None) -> Settings:
 
     setup_logger(
         log_dir=settings.resolved_log_dir,
-        log_level="INFO",
+        log_level=settings.log_level,
     )
     settings.resolved_output_dir.mkdir(parents=True, exist_ok=True)
 

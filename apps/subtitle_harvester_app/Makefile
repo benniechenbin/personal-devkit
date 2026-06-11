@@ -4,7 +4,7 @@ install:
 	uv sync --extra dev
 
 run:
-	uv run base-app
+	uv run subtitle-harvester-app
 
 test:
 	uv run pytest

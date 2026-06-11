@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "subtitle-harvester-app"
 version = "0.1.0"
-description = "A lightweight Python project starter with settings, logging, and bootstrap wiring."
+description = "Harvest TMDb movie and TV metadata candidates for subtitle workflows."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -30,7 +30,7 @@ banner = [
 ]
 
 [project.scripts]
-base-app = "subtitle_harvester_app.main:main"
+subtitle-harvester-app = "subtitle_harvester_app.cli:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

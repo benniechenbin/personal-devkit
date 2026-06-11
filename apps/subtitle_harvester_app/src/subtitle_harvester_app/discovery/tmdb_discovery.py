@@ -3,7 +3,7 @@ from __future__ import annotations
 import calendar
 from collections.abc import Iterable
 from datetime import date
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 import httpx
 
@@ -24,12 +24,14 @@ class TmdbDiscoveryClient:
         self.api_key = api_key
         self.language = language
         self.region = region
+        headers = {"Accept": "application/json"}
+        if _looks_like_read_access_token(api_key):
+            headers["Authorization"] = f"Bearer {api_key}"
+
         self.client = httpx.Client(
             base_url=self.BASE_URL,
             timeout=timeout,
-            headers={
-                "Accept": "application/json",
-            },
+            headers=headers,
         )
 
     def close(self) -> None:
@@ -184,12 +186,13 @@ class TmdbDiscoveryClient:
 
     def _get(self, path: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
         request_params = dict(params or {})
-        request_params["api_key"] = self.api_key
+        if not _looks_like_read_access_token(self.api_key):
+            request_params["api_key"] = self.api_key
 
         try:
             response = self.client.get(path, params=request_params)
             response.raise_for_status()
-            return response.json()
+            return cast(dict[str, Any], response.json())
         except httpx.HTTPStatusError as exc:
             status = exc.response.status_code
             body = exc.response.text[:300]
@@ -245,3 +248,7 @@ def _dedupe_candidates(candidates: list[MediaCandidate]) -> list[MediaCandidate]
         deduped.append(candidate)
 
     return deduped
+
+
+def _looks_like_read_access_token(value: str) -> bool:
+    return value.startswith("eyJ") or "." in value

@@ -9,7 +9,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 def find_project_root(
-    current_path: Path, markers: tuple[str, ...] = ("pyproject.toml", "requirements.txt", ".git")
+    current_path: Path,
+    markers: tuple[str, ...] = ("pyproject.toml", "requirements.txt", ".git"),
 ) -> Path:
     for parent in current_path.parents:
         if any((parent / marker).exists() for marker in markers):
@@ -29,32 +30,46 @@ class Settings(BaseSettings):
 
     app_name: str = Field(
         default="subtitle-harvester-app",
-        description="应用名称，用于启动横幅和日志标识。",
+        description="Application name used in logs and runtime metadata.",
     )
     app_env: Literal["development", "test", "production"] = Field(
         default="development",
-        description="运行环境，可选值：development、test、production。",
+        description="Runtime environment: development, test, or production.",
     )
-
     log_dir: Path = Field(
         default=Path("logs"),
-        description="日志目录。相对路径会基于项目根目录解析。",
+        description="Directory for application logs. Relative paths resolve from the app root.",
     )
     output_dir: Path = Field(
         default=Path("output"),
-        description="输出文件目录。相对路径会基于项目根目录解析。",
+        description=(
+            "Directory for generated candidate JSON files. "
+            "Relative paths resolve from the app root."
+        ),
     )
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = Field(
         default="INFO",
-        description="日志级别，可选值：DEBUG、INFO、WARNING、ERROR、CRITICAL。",
+        description="Application log level.",
     )
     tmdb_api_key: SecretStr | None = Field(
         default=None,
-        description="TMDb API Read Access Token，用于 Authorization Bearer。",
+        description=(
+            "TMDb API key or Read Access Token. Secret values are never written to .env.example."
+        ),
     )
-    tmdb_language: str = "zh-CN"
-    tmdb_region: str = "CN"
-    tmdb_max_pages: int = 3
+    tmdb_language: str = Field(
+        default="zh-CN",
+        description="TMDb response language.",
+    )
+    tmdb_region: str = Field(
+        default="CN",
+        description="TMDb region used for movie discovery.",
+    )
+    tmdb_max_pages: int = Field(
+        default=3,
+        ge=1,
+        description="Default maximum number of TMDb result pages to fetch per media type.",
+    )
 
     @property
     def resolved_log_dir(self) -> Path:
@@ -64,7 +79,9 @@ class Settings(BaseSettings):
 
     @property
     def resolved_output_dir(self) -> Path:
-        return self.output_dir if self.output_dir.is_absolute() else BASE_DIR / self.output_dir
+        if self.output_dir.is_absolute():
+            return self.output_dir
+        return BASE_DIR / self.output_dir
 
 
 @lru_cache

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from typing import Literal
+from typing import Any, Literal
 
 MediaType = Literal["movie", "tv"]
 
@@ -20,5 +20,5 @@ class MediaCandidate:
     aliases: list[str]
     source: str = "tmdb"
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
