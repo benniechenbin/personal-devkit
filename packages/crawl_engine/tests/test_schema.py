@@ -1,6 +1,11 @@
 from __future__ import annotations
 
-from crawl_engine.schema import Crawl4AIRequest, ScrapeRequest, ScrapeResponse
+from crawl_engine.schema import (
+    AttachmentRequest,
+    Crawl4AIRequest,
+    ScrapeRequest,
+    ScrapeResponse,
+)
 
 
 def test_scrape_request_defaults() -> None:
@@ -42,3 +47,14 @@ def test_crawl4ai_request_defaults() -> None:
     assert request.css_schema is None
     assert request.wait_for is None
     assert request.js_code is None
+
+
+def test_attachment_request_defaults() -> None:
+    request = AttachmentRequest(url="https://example.com/file.zip")
+
+    assert request.url == "https://example.com/file.zip"
+    assert request.file_name is None
+    assert request.headers == {}
+    assert request.timeout_ms == 30_000
+    assert request.max_size_bytes is None
+    assert request.metadata == {}

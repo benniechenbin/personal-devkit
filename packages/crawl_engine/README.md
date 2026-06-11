@@ -78,6 +78,8 @@ asyncio.run(main())
 ```
 ### 3. 附件下载与压缩包解压
 
+`AttachmentDownloader` 使用流式下载写入文件，避免把附件一次性读入内存；下载内容会先写入临时 `.part` 文件，成功后再替换为最终文件。可以通过 `AttachmentRequest.max_size_bytes` 限制单个附件大小。
+
 ```python
 import asyncio
 from pathlib import Path
@@ -91,7 +93,10 @@ async def main():
 
     try:
         downloaded = await downloader.download(
-            AttachmentRequest(url="https://example.com/archive.zip"),
+            AttachmentRequest(
+                url="https://example.com/archive.zip",
+                max_size_bytes=100 * 1024 * 1024,
+            ),
             output_dir="downloads",
         )
 
@@ -111,11 +116,11 @@ asyncio.run(main())
 
 ---
 
-### 4. 补 `test_archive_extractor.py`
+### 4. 压缩包解压行为
 
-你现在目录里还没有 `test_archive_extractor.py`。这块最好补上，否则公共能力没有单测保护。
+`ArchiveExtractor` 当前只处理通用 zip 解压，不包含字幕、图片、文档等业务筛选规则。它会在写入文件前检查压缩包条目路径，避免 `../` 或绝对路径把文件解压到目标目录外。
 
-至少要测：
+当前支持：
 
 ```text
 正常 zip 解压
@@ -126,6 +131,7 @@ asyncio.run(main())
 delete_archive=True 成功删除原压缩包
 max_files 限制
 max_total_uncompressed_bytes 限制
+异步包装 extract_async
 ```
 
 ## 核心设计

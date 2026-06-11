@@ -2,8 +2,9 @@ import asyncio
 import logging
 from typing import Any
 
-from crawl_engine.schema import Crawl4AIRequest, ScrapeResponse
 from tenacity import retry, stop_after_attempt, wait_exponential
+
+from crawl_engine.schema import Crawl4AIRequest, ScrapeResponse
 
 logger = logging.getLogger(__name__)
 DEFAULT_USER_AGENT = (

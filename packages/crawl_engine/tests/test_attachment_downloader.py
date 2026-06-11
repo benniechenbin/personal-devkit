@@ -4,7 +4,17 @@ import asyncio
 
 import httpx
 from crawl_engine.downloads import AttachmentDownloader
+from crawl_engine.downloads.attachment_downloader import DEFAULT_CHUNK_SIZE
 from crawl_engine.schema import AttachmentRequest
+
+
+class ChunkedStream(httpx.AsyncByteStream):
+    def __init__(self, chunks: list[bytes]) -> None:
+        self.chunks = chunks
+
+    async def __aiter__(self):
+        for chunk in self.chunks:
+            yield chunk
 
 
 def test_attachment_downloader_saves_file_with_explicit_name(tmp_path) -> None:
@@ -74,6 +84,109 @@ def test_attachment_downloader_uses_content_disposition_filename(tmp_path) -> No
         assert result.path is not None
         assert result.path.name == "demo.pdf"
         assert result.path.read_bytes() == b"hello"
+
+    asyncio.run(run())
+
+
+def test_attachment_downloader_streams_response_to_file(tmp_path) -> None:
+    async def run() -> None:
+        chunks = [b"a" * DEFAULT_CHUNK_SIZE, b"tail"]
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(
+                200,
+                stream=ChunkedStream(chunks),
+                headers={"content-type": "application/octet-stream"},
+                request=request,
+            )
+
+        client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+        downloader = AttachmentDownloader(client=client)
+
+        try:
+            result = await downloader.download(
+                AttachmentRequest(
+                    url="https://example.com/files/large.bin",
+                ),
+                tmp_path,
+            )
+        finally:
+            await downloader.close()
+
+        assert result.success is True
+        assert result.path is not None
+        assert result.size_bytes == DEFAULT_CHUNK_SIZE + len(b"tail")
+        assert result.path.read_bytes() == b"".join(chunks)
+        assert not list(tmp_path.glob("*.part"))
+
+    asyncio.run(run())
+
+
+def test_attachment_downloader_rejects_content_length_over_limit(tmp_path) -> None:
+    async def run() -> None:
+        def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(
+                200,
+                content=b"too big",
+                headers={
+                    "content-length": "7",
+                    "content-type": "application/octet-stream",
+                },
+                request=request,
+            )
+
+        client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+        downloader = AttachmentDownloader(client=client)
+
+        try:
+            result = await downloader.download(
+                AttachmentRequest(
+                    url="https://example.com/files/large.bin",
+                    max_size_bytes=4,
+                ),
+                tmp_path,
+            )
+        finally:
+            await downloader.close()
+
+        assert result.success is False
+        assert result.path == tmp_path / "large.bin"
+        assert result.error_message == "附件大小超过限制：7 > 4"
+        assert not (tmp_path / "large.bin").exists()
+        assert not list(tmp_path.glob("*.part"))
+
+    asyncio.run(run())
+
+
+def test_attachment_downloader_stops_stream_when_size_limit_is_exceeded(tmp_path) -> None:
+    async def run() -> None:
+        def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(
+                200,
+                stream=ChunkedStream([b"abc", b"de"]),
+                headers={"content-type": "application/octet-stream"},
+                request=request,
+            )
+
+        client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+        downloader = AttachmentDownloader(client=client)
+
+        try:
+            result = await downloader.download(
+                AttachmentRequest(
+                    url="https://example.com/files/large.bin",
+                    max_size_bytes=4,
+                ),
+                tmp_path,
+            )
+        finally:
+            await downloader.close()
+
+        assert result.success is False
+        assert result.path == tmp_path / "large.bin"
+        assert result.error_message == "附件大小超过限制：5 > 4"
+        assert not (tmp_path / "large.bin").exists()
+        assert not list(tmp_path.glob("*.part"))
 
     asyncio.run(run())
 

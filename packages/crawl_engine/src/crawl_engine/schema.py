@@ -40,6 +40,7 @@ class AttachmentRequest(BaseModel):
     file_name: str | None = None
     headers: dict[str, str] = Field(default_factory=dict)
     timeout_ms: int = 30_000
+    max_size_bytes: int | None = Field(default=None, gt=0)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 

@@ -1,8 +1,9 @@
 import logging
 
 import httpx
-from crawl_engine.schema import ScrapeRequest, ScrapeResponse
 from tenacity import retry, stop_after_attempt, wait_exponential
+
+from crawl_engine.schema import ScrapeRequest, ScrapeResponse
 
 logger = logging.getLogger(__name__)
 DEFAULT_USER_AGENT = (

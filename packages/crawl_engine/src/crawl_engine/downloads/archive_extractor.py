@@ -97,9 +97,9 @@ class ArchiveExtractor:
                     f"{total_uncompressed} > {request.max_total_uncompressed_bytes}"
                 )
 
-            for info in file_infos:
-                target_path = _safe_target_path(output_dir, info.filename)
+            target_paths = [_safe_target_path(output_dir, info.filename) for info in file_infos]
 
+            for info, target_path in zip(file_infos, target_paths, strict=True):
                 if target_path.exists():
                     if request.auto_rename:
                         target_path = _get_available_path(target_path)
