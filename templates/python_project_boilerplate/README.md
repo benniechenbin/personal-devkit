@@ -23,7 +23,7 @@ package_name=order_service
 从当前模板仓库生成项目：
 
 ```bash
-uv tool run copier copy --vcs-ref HEAD . ../order-service
+uv tool run copier copy --vcs-ref HEAD . ../../apps/order-service
 ```
 
 输入项目名后，Copier 会生成 `.copier-answers.yml`。该文件必须提交，且不要手工修改。

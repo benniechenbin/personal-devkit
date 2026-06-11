@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -26,7 +28,7 @@ class Settings(BaseSettings):
     )
 
     app_name: str = Field(
-        default="python-project-boilerplate",
+        default="subtitle-harvester-app",
         description="应用名称，用于启动横幅和日志标识。",
     )
     app_env: Literal["development", "test", "production"] = Field(
@@ -38,16 +40,31 @@ class Settings(BaseSettings):
         default=Path("logs"),
         description="日志目录。相对路径会基于项目根目录解析。",
     )
+    output_dir: Path = Field(
+        default=Path("output"),
+        description="输出文件目录。相对路径会基于项目根目录解析。",
+    )
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = Field(
         default="INFO",
         description="日志级别，可选值：DEBUG、INFO、WARNING、ERROR、CRITICAL。",
     )
+    tmdb_api_key: SecretStr | None = Field(
+        default=None,
+        description="TMDb API Read Access Token，用于 Authorization Bearer。",
+    )
+    tmdb_language: str = "zh-CN"
+    tmdb_region: str = "CN"
+    tmdb_max_pages: int = 3
 
     @property
     def resolved_log_dir(self) -> Path:
         if self.log_dir.is_absolute():
             return self.log_dir
         return BASE_DIR / self.log_dir
+
+    @property
+    def resolved_output_dir(self) -> Path:
+        return self.output_dir if self.output_dir.is_absolute() else BASE_DIR / self.output_dir
 
 
 @lru_cache

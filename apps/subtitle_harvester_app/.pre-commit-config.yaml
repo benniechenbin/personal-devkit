@@ -1,0 +1,47 @@
+repos:
+  # 1. Settings 与环境变量示例同步检查
+  - repo: local
+    hooks:
+      - id: generate-env-example
+        name: Check .env.example against Settings
+        entry: uv run python scripts/generate_env_example.py
+        language: system
+        always_run: true
+        pass_filenames: false
+  # 2. 代码质量检查
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-toml
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: detect-private-key
+      - id: check-merge-conflict
+        args: [--assume-in-merge]
+  # 3. 代码格式化检查
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.16
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+  # 4. 代码类型检查
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v2.1.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - langchain-core
+          - langchain-openai
+          - langgraph
+          - loguru
+          - pydantic
+          - pydantic-settings
+        args:
+          - --ignore-missing-imports
+          - --check-untyped-defs
+          - --warn-unused-ignores
+          - --warn-unreachable
+        files: ^src/.+\.py$
