@@ -76,6 +76,57 @@ async def main():
 
 asyncio.run(main())
 ```
+### 3. 附件下载与压缩包解压
+
+```python
+import asyncio
+from pathlib import Path
+
+from crawl_engine.downloads import ArchiveExtractor, AttachmentDownloader
+from crawl_engine.schema import ArchiveRequest, AttachmentRequest
+
+async def main():
+    downloader = AttachmentDownloader()
+    extractor = ArchiveExtractor()
+
+    try:
+        downloaded = await downloader.download(
+            AttachmentRequest(url="https://example.com/archive.zip"),
+            output_dir="downloads",
+        )
+
+        if downloaded.success and downloaded.path:
+            extracted = await extractor.extract_async(
+                ArchiveRequest(
+                    archive_path=downloaded.path,
+                    output_dir=Path("extracted"),
+                )
+            )
+            print(extracted.files)
+    finally:
+        await downloader.close()
+
+asyncio.run(main())
+```
+
+---
+
+### 4. 补 `test_archive_extractor.py`
+
+你现在目录里还没有 `test_archive_extractor.py`。这块最好补上，否则公共能力没有单测保护。
+
+至少要测：
+
+```text
+正常 zip 解压
+嵌套目录解压
+已有文件自动重命名
+路径穿越被拒绝
+非 zip 返回失败
+delete_archive=True 成功删除原压缩包
+max_files 限制
+max_total_uncompressed_bytes 限制
+```
 
 ## 核心设计
 

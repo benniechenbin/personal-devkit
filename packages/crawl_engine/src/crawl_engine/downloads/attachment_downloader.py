@@ -12,7 +12,7 @@ from crawl_engine.schema import AttachmentRequest, DownloadedFile
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_CHUNK_SIZE = 1024 * 1024
+# DEFAULT_CHUNK_SIZE = 1024 * 1024 TODO: 未来考虑流式下载
 DEFAULT_FILENAME = "attachment"
 
 

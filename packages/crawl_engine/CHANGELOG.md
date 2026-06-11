@@ -11,3 +11,15 @@
 - **统一数据模型**: 定义了 `ScrapeRequest`, `Crawl4AIRequest` 和 `ScrapeResponse` 模型，确保引擎接口的一致性。
 - **可选依赖**: 支持通过 `crawl-engine[crawl4ai]` 安装高级引擎所需的依赖。
 - **基础测试**: 增加了对引擎功能和 schema 的单元测试。
+## [0.2.0] - 2026-06-11
+
+### 新增
+
+- 增加 `downloads.ArchiveExtractor`，用于下载后压缩包解压。
+- 增加 `ArchiveRequest`、`ExtractedFile`、`ExtractedArchive` schema。
+- `ArchiveExtractor` 当前支持 zip 文件解压、安全路径校验、文件数量限制、解压体积限制、自动重命名和可选删除原压缩包。
+- 从 `crawl_engine.downloads` 和顶层 `crawl_engine` 导出 `ArchiveExtractor`。
+
+### 说明
+
+- `ArchiveExtractor` 只处理通用压缩包解压，不包含字幕、图片、文档等业务筛选规则。
