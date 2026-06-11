@@ -46,6 +46,9 @@ class TmdbDiscoveryClient:
         max_pages: int = 3,
         origin_country: str | None = None,
         original_language: str | None = None,
+        sort_by: str | None = None,
+        min_vote_count: int | None = None,
+        min_runtime: int | None = None,
     ) -> list[MediaCandidate]:
         start_date, end_date = _date_range(year=year, month=month)
         candidates: list[MediaCandidate] = []
@@ -59,6 +62,9 @@ class TmdbDiscoveryClient:
                         max_pages=max_pages,
                         origin_country=origin_country,
                         original_language=original_language,
+                        sort_by=sort_by,
+                        min_vote_count=min_vote_count,
+                        min_runtime=min_runtime,
                     )
                 )
             elif media_type == "tv":
@@ -69,6 +75,9 @@ class TmdbDiscoveryClient:
                         max_pages=max_pages,
                         origin_country=origin_country,
                         original_language=original_language,
+                        sort_by=sort_by,
+                        min_vote_count=min_vote_count,
+                        min_runtime=min_runtime,
                     )
                 )
             else:
@@ -84,6 +93,9 @@ class TmdbDiscoveryClient:
         max_pages: int,
         origin_country: str | None = None,
         original_language: str | None = None,
+        sort_by: str | None = None,
+        min_vote_count: int | None = None,
+        min_runtime: int | None = None,
     ) -> list[MediaCandidate]:
         results: list[MediaCandidate] = []
 
@@ -93,7 +105,7 @@ class TmdbDiscoveryClient:
                 "region": self.region,
                 "include_adult": "false",
                 "include_video": "false",
-                "sort_by": "primary_release_date.desc",
+                "sort_by": sort_by or "primary_release_date.desc",
                 "primary_release_date.gte": start_date,
                 "primary_release_date.lte": end_date,
                 "page": page,
@@ -102,6 +114,8 @@ class TmdbDiscoveryClient:
                 params,
                 origin_country=origin_country,
                 original_language=original_language,
+                min_vote_count=min_vote_count,
+                min_runtime=min_runtime,
             )
 
             payload = self._get("/discover/movie", params=params)
@@ -122,6 +136,9 @@ class TmdbDiscoveryClient:
         max_pages: int,
         origin_country: str | None = None,
         original_language: str | None = None,
+        sort_by: str | None = None,
+        min_vote_count: int | None = None,
+        min_runtime: int | None = None,
     ) -> list[MediaCandidate]:
         results: list[MediaCandidate] = []
 
@@ -130,7 +147,7 @@ class TmdbDiscoveryClient:
                 "language": self.language,
                 "include_adult": "false",
                 "include_null_first_air_dates": "false",
-                "sort_by": "first_air_date.desc",
+                "sort_by": sort_by or "first_air_date.desc",
                 "first_air_date.gte": start_date,
                 "first_air_date.lte": end_date,
                 "page": page,
@@ -139,6 +156,8 @@ class TmdbDiscoveryClient:
                 params,
                 origin_country=origin_country,
                 original_language=original_language,
+                min_vote_count=min_vote_count,
+                min_runtime=min_runtime,
             )
 
             payload = self._get("/discover/tv", params=params)
@@ -277,9 +296,17 @@ def _add_optional_discovery_filters(
     *,
     origin_country: str | None,
     original_language: str | None,
+    min_vote_count: int | None,
+    min_runtime: int | None,
 ) -> None:
     if origin_country:
         params["with_origin_country"] = origin_country
 
     if original_language:
         params["with_original_language"] = original_language
+
+    if min_vote_count is not None:
+        params["vote_count.gte"] = min_vote_count
+
+    if min_runtime is not None:
+        params["with_runtime.gte"] = min_runtime
