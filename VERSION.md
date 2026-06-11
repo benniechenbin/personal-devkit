@@ -1,5 +1,7 @@
 # Version
 
-Current `personal-devkit` monorepo version: `0.1.0`
+Current `personal-devkit` monorepo version: `0.2.0`
 
-Current package/template versions are initialized at `0.1.0`.
+Package and template versions are managed independently.
+
+This root version represents the monorepo workspace milestone, not a single distributable Python package.
