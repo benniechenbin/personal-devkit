@@ -1,4 +1,4 @@
-.PHONY: install lock sync-shared check-env-example lint format type type-apps type-packages type-templates type-template-agent type-template-python type-shared type-retrieval test check check-template clean
+.PHONY: install lock sync-shared check-env-example lint format type type-apps type-packages type-templates type-template-agent type-template-python type-shared type-retrieval test boundary-check coverage-check check check-template clean
 
 install:
 	uv sync --all-packages --all-extras --group dev
@@ -47,7 +47,13 @@ type-retrieval:
 test:
 	uv run pytest
 
-check: lock sync-shared check-env-example lint format type test
+check: lock sync-shared check-env-example lint format type boundary-check test coverage-check
+
+boundary-check:
+	uv run python scripts/check_package_boundaries.py
+
+coverage-check:
+	uv run python scripts/check_coverage.py
 
 check-template:
 	uv run python templates/python_project_boilerplate/scripts/check_copier_template.py

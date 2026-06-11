@@ -54,8 +54,14 @@ jobs:
           make type
           make type-retrieval
 
+      - name: Check package boundaries
+        run: make boundary-check
+
       - name: Test
         run: make test
+
+      - name: Check package coverage
+        run: make coverage-check
 
       - name: Check Copier template
         run: uv run python templates/python_project_boilerplate/scripts/check_copier_template.py

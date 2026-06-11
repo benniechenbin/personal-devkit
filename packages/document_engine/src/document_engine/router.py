@@ -1,14 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any, cast
 
+from .protocols import DocumentPipeline, DocumentReader
 from .schema import Fragment
-
-if TYPE_CHECKING:
-    from .pipelines.vector_pdf_pipeline import VectorPdfPipeline
-    from .readers.docx_reader import DocxReader
-    from .readers.tabular_reader import TabularReader
 
 
 class DocumentRouter:
@@ -16,9 +12,9 @@ class DocumentRouter:
 
     def __init__(self, output_dir: str = "output"):
         self.output_dir = output_dir
-        self.tabular_reader: TabularReader | None = None
-        self.docx_reader: DocxReader | None = None
-        self.vector_pdf_pipeline: VectorPdfPipeline | None = None
+        self.tabular_reader: DocumentReader | None = None
+        self.docx_reader: DocumentReader | None = None
+        self.vector_pdf_pipeline: DocumentPipeline | None = None
 
     def parse(self, file_path: str | Path) -> list[Fragment]:
         path = Path(file_path)
@@ -36,27 +32,27 @@ class DocumentRouter:
     def _parse_pdf(self, path: Path) -> list[Fragment]:
         return self._get_vector_pdf_pipeline().process_pdf(str(path))
 
-    def _get_tabular_reader(self) -> TabularReader:
+    def _get_tabular_reader(self) -> DocumentReader:
         if self.tabular_reader is None:
             from .readers.tabular_reader import TabularReader
 
             self.tabular_reader = TabularReader()
         return self.tabular_reader
 
-    def _get_docx_reader(self) -> DocxReader:
+    def _get_docx_reader(self) -> DocumentReader:
         if self.docx_reader is None:
             from .readers.docx_reader import DocxReader
 
             self.docx_reader = DocxReader()
         return self.docx_reader
 
-    def _get_vector_pdf_pipeline(self) -> VectorPdfPipeline:
+    def _get_vector_pdf_pipeline(self) -> DocumentPipeline:
         if self.vector_pdf_pipeline is None:
             from .pipelines.vector_pdf_pipeline import VectorPdfPipeline
 
             pipeline_cls = cast(Any, VectorPdfPipeline)
             self.vector_pdf_pipeline = cast(
-                "VectorPdfPipeline",
+                DocumentPipeline,
                 pipeline_cls(output_dir=self.output_dir),
             )
         return self.vector_pdf_pipeline

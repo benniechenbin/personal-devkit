@@ -15,6 +15,12 @@ from retrieval_engine.domain import (
     SearchResult,
     VectorRecord,
 )
+from retrieval_engine.exceptions import (
+    ConfigurationError,
+    ProviderError,
+    RetrievalEngineError,
+    StorageError,
+)
 from retrieval_engine.storage.base import NativeDocument, VectorStorage, VectorStore
 
 __all__ = [
@@ -22,6 +28,7 @@ __all__ = [
     "CommunityCandidate",
     "CommunityDetectionReport",
     "CommunitySummary",
+    "ConfigurationError",
     "DocumentChunk",
     "GraphCommunity",
     "GraphCommunityHit",
@@ -31,8 +38,11 @@ __all__ = [
     "GraphRelation",
     "GraphRelationshipHit",
     "NativeDocument",
+    "ProviderError",
+    "RetrievalEngineError",
     "ScoredDocument",
     "SearchResult",
+    "StorageError",
     "VectorRecord",
     "VectorStorage",
     "VectorStore",
