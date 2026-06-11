@@ -44,6 +44,8 @@ class TmdbDiscoveryClient:
         month: int | None = None,
         media_types: Iterable[MediaType] = ("movie", "tv"),
         max_pages: int = 3,
+        origin_country: str | None = None,
+        original_language: str | None = None,
     ) -> list[MediaCandidate]:
         start_date, end_date = _date_range(year=year, month=month)
         candidates: list[MediaCandidate] = []
@@ -55,6 +57,8 @@ class TmdbDiscoveryClient:
                         start_date=start_date,
                         end_date=end_date,
                         max_pages=max_pages,
+                        origin_country=origin_country,
+                        original_language=original_language,
                     )
                 )
             elif media_type == "tv":
@@ -63,6 +67,8 @@ class TmdbDiscoveryClient:
                         start_date=start_date,
                         end_date=end_date,
                         max_pages=max_pages,
+                        origin_country=origin_country,
+                        original_language=original_language,
                     )
                 )
             else:
@@ -76,23 +82,29 @@ class TmdbDiscoveryClient:
         start_date: str,
         end_date: str,
         max_pages: int,
+        origin_country: str | None = None,
+        original_language: str | None = None,
     ) -> list[MediaCandidate]:
         results: list[MediaCandidate] = []
 
         for page in range(1, max_pages + 1):
-            payload = self._get(
-                "/discover/movie",
-                params={
-                    "language": self.language,
-                    "region": self.region,
-                    "include_adult": "false",
-                    "include_video": "false",
-                    "sort_by": "primary_release_date.desc",
-                    "primary_release_date.gte": start_date,
-                    "primary_release_date.lte": end_date,
-                    "page": page,
-                },
+            params: dict[str, Any] = {
+                "language": self.language,
+                "region": self.region,
+                "include_adult": "false",
+                "include_video": "false",
+                "sort_by": "primary_release_date.desc",
+                "primary_release_date.gte": start_date,
+                "primary_release_date.lte": end_date,
+                "page": page,
+            }
+            _add_optional_discovery_filters(
+                params,
+                origin_country=origin_country,
+                original_language=original_language,
             )
+
+            payload = self._get("/discover/movie", params=params)
 
             for item in payload.get("results", []):
                 results.append(self._movie_to_candidate(item))
@@ -108,22 +120,28 @@ class TmdbDiscoveryClient:
         start_date: str,
         end_date: str,
         max_pages: int,
+        origin_country: str | None = None,
+        original_language: str | None = None,
     ) -> list[MediaCandidate]:
         results: list[MediaCandidate] = []
 
         for page in range(1, max_pages + 1):
-            payload = self._get(
-                "/discover/tv",
-                params={
-                    "language": self.language,
-                    "include_adult": "false",
-                    "include_null_first_air_dates": "false",
-                    "sort_by": "first_air_date.desc",
-                    "first_air_date.gte": start_date,
-                    "first_air_date.lte": end_date,
-                    "page": page,
-                },
+            params: dict[str, Any] = {
+                "language": self.language,
+                "include_adult": "false",
+                "include_null_first_air_dates": "false",
+                "sort_by": "first_air_date.desc",
+                "first_air_date.gte": start_date,
+                "first_air_date.lte": end_date,
+                "page": page,
+            }
+            _add_optional_discovery_filters(
+                params,
+                origin_country=origin_country,
+                original_language=original_language,
             )
+
+            payload = self._get("/discover/tv", params=params)
 
             for item in payload.get("results", []):
                 results.append(self._tv_to_candidate(item))
@@ -252,3 +270,16 @@ def _dedupe_candidates(candidates: list[MediaCandidate]) -> list[MediaCandidate]
 
 def _looks_like_read_access_token(value: str) -> bool:
     return value.startswith("eyJ") or "." in value
+
+
+def _add_optional_discovery_filters(
+    params: dict[str, Any],
+    *,
+    origin_country: str | None,
+    original_language: str | None,
+) -> None:
+    if origin_country:
+        params["with_origin_country"] = origin_country
+
+    if original_language:
+        params["with_original_language"] = original_language

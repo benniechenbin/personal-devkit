@@ -42,6 +42,16 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="写出 snapshot 和 batch，但不更新 seen state，适合 dry-run 检查。",
     )
+    parser.add_argument(
+        "--origin-country",
+        default=None,
+        help="按原产国家/地区过滤 TMDb discovery，例如 CN。",
+    )
+    parser.add_argument(
+        "--original-language",
+        default=None,
+        help="按原始语言过滤 TMDb discovery，例如 zh。",
+    )
     return parser.parse_args(argv)
 
 
@@ -111,6 +121,8 @@ def main(argv: Sequence[str] | None = None) -> None:
             month=args.month,
             media_types=media_types,
             max_pages=args.max_pages or settings.tmdb_max_pages,
+            origin_country=args.origin_country,
+            original_language=args.original_language,
         )
     finally:
         client.close()

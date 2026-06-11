@@ -43,6 +43,8 @@ class FakeTmdbDiscoveryClient:
         month: int | None,
         media_types,
         max_pages: int,
+        origin_country: str | None = None,
+        original_language: str | None = None,
     ) -> list[MediaCandidate]:
         assert self.api_key == "test-api-key"
         assert year == 2026
@@ -161,3 +163,17 @@ def test_cli_second_run_writes_empty_batch_for_seen_candidate(
     assert "movie:1" in state_payload["discovered"]
     assert state_payload["discovered"]["movie:1"]["first_seen_at"] == "2026-06-11T00:00:00+00:00"
     assert state_payload["discovered"]["movie:1"]["last_seen_at"] == "2026-06-11T00:00:00+00:00"
+
+
+def test_parse_args_accepts_tmdb_origin_filters() -> None:
+    args = cli.parse_args(
+        [
+            "--origin-country",
+            "CN",
+            "--original-language",
+            "zh",
+        ]
+    )
+
+    assert args.origin_country == "CN"
+    assert args.original_language == "zh"
