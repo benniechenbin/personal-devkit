@@ -30,45 +30,48 @@ class Settings(BaseSettings):
 
     app_name: str = Field(
         default="subtitle-harvester-app",
-        description="Application name used in logs and runtime metadata.",
+        description="应用名称，用于日志和运行时元数据。",
     )
     app_env: Literal["development", "test", "production"] = Field(
         default="development",
-        description="Runtime environment: development, test, or production.",
+        description="运行环境：development、test 或 production。",
     )
     log_dir: Path = Field(
         default=Path("logs"),
-        description="Directory for application logs. Relative paths resolve from the app root.",
+        description="应用日志目录。相对路径会基于应用根目录解析。",
     )
     output_dir: Path = Field(
         default=Path("output"),
-        description=(
-            "Directory for generated candidate JSON files. "
-            "Relative paths resolve from the app root."
-        ),
+        description=("生成候选 JSON 文件的目录。相对路径会基于应用根目录解析。"),
     )
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = Field(
         default="INFO",
-        description="Application log level.",
+        description="应用日志级别。",
     )
     tmdb_api_key: SecretStr | None = Field(
         default=None,
-        description=(
-            "TMDb API key or Read Access Token. Secret values are never written to .env.example."
-        ),
+        description=("TMDb API Key 或 Read Access Token。密钥值不会写入 .env.example。"),
     )
     tmdb_language: str = Field(
         default="zh-CN",
-        description="TMDb response language.",
+        description="TMDb 响应语言。",
     )
     tmdb_region: str = Field(
         default="CN",
-        description="TMDb region used for movie discovery.",
+        description="电影发现接口使用的 TMDb 地区。",
     )
     tmdb_max_pages: int = Field(
         default=3,
         ge=1,
-        description="Default maximum number of TMDb result pages to fetch per media type.",
+        description="每种媒体类型默认抓取的 TMDb 结果页上限。",
+    )
+    subdl_api_key: SecretStr | None = Field(
+        default=None,
+        description="SubDL API Key，用于字幕搜索。",
+    )
+    subdl_languages: str = Field(
+        default="ZH,ZH-CN,EN",
+        description="SubDL 字幕语言筛选，多个语言用逗号分隔。",
     )
 
     @property

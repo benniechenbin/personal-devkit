@@ -1,1 +1,1 @@
-"""Core application bootstrap package."""
+"""核心应用启动包。"""

@@ -1,19 +1,19 @@
-# Changelog
+# 变更日志
 
-All notable changes to `subtitle-harvester-app` are documented in this file.
+本文件记录 `subtitle-harvester-app` 的重要变更。
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows semantic versioning while it remains app-local.
+格式参考 [变更日志维护规范](https://keepachangelog.com/en/1.1.0/)，当前作为应用内项目按语义化版本维护。
 
 ## [0.1.0] - 2026-06-11
 
-### Added
+### 新增
 
-- Initial TMDb subtitle candidate harvester CLI.
-- JSON output writer for normalized media candidates.
-- App-local settings, logging bootstrap, Docker configuration, Make targets, tests, and `.env.example` generation.
-- Project documentation and generated-output ignore rules.
+- 初始化 TMDb 字幕候选采集 CLI。
+- 增加规范化媒体候选条目的 JSON 输出器。
+- 增加应用级 settings、日志启动、Docker 配置、Make 目标、测试和 `.env.example` 生成。
+- 增加项目文档和生成产物忽略规则。
 
-### Fixed
+### 修复
 
-- Replaced the template console script name with `subtitle-harvester-app`.
-- Made CLI tests run offline without requiring a live TMDb request.
+- 将模板遗留的控制台脚本名替换为 `subtitle-harvester-app`。
+- 入口测试改为离线运行，不再依赖真实 TMDb 请求。

@@ -14,7 +14,9 @@ def init_workspace(app_settings: Settings | None = None) -> Settings:
     settings.resolved_output_dir.mkdir(parents=True, exist_ok=True)
 
     if not settings.tmdb_api_key:
-        raise RuntimeError("缺少 TMDB_API_KEY，请在 .env 中配置 TMDb API Read Access Token。")
+        raise RuntimeError(
+            "缺少 TMDB_API_KEY，请在 .env 中配置 TMDb v3 API Key 或 Read Access Token。"
+        )
 
     logger.info(
         "工作空间初始化完成：应用={}，环境={}，输出目录={}",

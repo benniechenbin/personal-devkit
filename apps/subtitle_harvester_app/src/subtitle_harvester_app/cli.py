@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import shutil
 from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
@@ -10,11 +11,17 @@ from subtitle_harvester_app.core.bootstrap import init_workspace
 from subtitle_harvester_app.discovery.tmdb_discovery import TmdbDiscoveryClient
 from subtitle_harvester_app.outputs.json_writer import write_candidates_json
 from subtitle_harvester_app.schema import MediaType
+from subtitle_harvester_app.state.discovery_state import (
+    load_seen_state,
+    save_seen_state,
+    split_new_candidates,
+    utc_now_iso,
+)
 
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Fetch movie and TV subtitle candidates from TMDb and write JSON.",
+        description="从 TMDb 抓取电影和剧集字幕候选，并写出增量 JSON 批次。",
     )
     parser.add_argument("--year", type=int, default=datetime.now().year)
     parser.add_argument("--month", type=_month, default=None)
@@ -24,7 +31,17 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         default="all",
     )
     parser.add_argument("--max-pages", type=_positive_int, default=None)
-    parser.add_argument("--output", type=Path, default=None)
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="可选的批次输出路径；快照和状态文件仍使用配置中的输出目录。",
+    )
+    parser.add_argument(
+        "--no-update-state",
+        action="store_true",
+        help="Write snapshot and batch without updating seen state. Useful for dry-run checks.",
+    )
     return parser.parse_args(argv)
 
 
@@ -42,25 +59,45 @@ def _positive_int(value: str) -> int:
     return parsed
 
 
+def _run_id() -> str:
+    return datetime.now().strftime("%Y%m%d_%H%M%S")
+
+
+def _period_part(year: int, month: int | None) -> str:
+    return f"{year}_{month:02d}" if month else str(year)
+
+
+def _media_types(media_type: str) -> tuple[MediaType, ...]:
+    if media_type == "all":
+        return ("movie", "tv")
+    return (media_type,)  # type: ignore[return-value]
+
+
 def main(argv: Sequence[str] | None = None) -> None:
     args = parse_args(argv)
     settings = init_workspace(get_settings())
 
-    media_types: tuple[MediaType, ...]
-    if args.media_type == "all":
-        media_types = ("movie", "tv")
-    else:
-        media_types = (args.media_type,)
+    media_types = _media_types(args.media_type)
+    period = _period_part(args.year, args.month)
+    run_id = _run_id()
+    discovered_at = utc_now_iso()
 
-    month_part = f"_{args.month:02d}" if args.month else ""
-    default_output = (
-        settings.resolved_output_dir
-        / f"media_candidates_{args.year}{month_part}_{args.media_type}.json"
+    output_root = settings.resolved_output_dir
+    snapshot_dir = output_root / "snapshots"
+    batch_dir = output_root / "batches"
+    latest_dir = output_root / "latest"
+    state_path = output_root / "state" / "seen_media_candidates.json"
+
+    snapshot_path = (
+        snapshot_dir / f"media_candidates_{period}_{args.media_type}_{run_id}.snapshot.json"
     )
-    output_path = args.output or default_output
+    batch_path = args.output or (
+        batch_dir / f"media_candidates_{period}_{args.media_type}_{run_id}.batch.json"
+    )
 
     if settings.tmdb_api_key is None:
-        raise RuntimeError("Missing TMDB_API_KEY in environment or .env file.")
+        raise RuntimeError("环境变量或 .env 中缺少 TMDB_API_KEY。")
+
     api_key = settings.tmdb_api_key.get_secret_value().strip()
     client = TmdbDiscoveryClient(
         api_key=api_key,
@@ -78,10 +115,59 @@ def main(argv: Sequence[str] | None = None) -> None:
     finally:
         client.close()
 
-    write_candidates_json(candidates, output_path)
+    state = load_seen_state(state_path)
+    new_candidates, updated_state = split_new_candidates(
+        candidates,
+        state,
+        now=discovered_at,
+    )
 
-    print(f"Generated subtitle candidate list: {output_path}")
-    print(f"Total candidates: {len(candidates)}")
+    common_metadata = {
+        "run_id": run_id,
+        "discovered_at": discovered_at,
+        "source": "tmdb",
+        "year": args.year,
+        "month": args.month,
+        "media_type": args.media_type,
+        "max_pages": args.max_pages or settings.tmdb_max_pages,
+        "total_candidates": len(candidates),
+        "new_candidates": len(new_candidates),
+        "state_path": str(state_path),
+    }
+
+    write_candidates_json(
+        candidates,
+        snapshot_path,
+        metadata={
+            **common_metadata,
+            "kind": "snapshot",
+        },
+    )
+
+    write_candidates_json(
+        new_candidates,
+        batch_path,
+        metadata={
+            **common_metadata,
+            "kind": "batch",
+        },
+    )
+
+    latest_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(snapshot_path, latest_dir / "latest_snapshot.json")
+    shutil.copyfile(batch_path, latest_dir / "latest_batch.json")
+
+    if not args.no_update_state:
+        save_seen_state(state_path, updated_state)
+
+    print(f"已生成快照：{snapshot_path}")
+    print(f"已生成批次：{batch_path}")
+    print(f"候选总数：{len(candidates)}")
+    print(f"New candidates: {len(new_candidates)}")
+    if args.no_update_state:
+        print("State was not updated because --no-update-state was used.")
+    else:
+        print(f"Updated state: {state_path}")
 
 
 if __name__ == "__main__":

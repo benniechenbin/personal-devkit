@@ -1,42 +1,42 @@
 # subtitle-harvester-app
 
-Harvest movie and TV metadata candidates from TMDb for subtitle collection workflows.
+`subtitle-harvester-app` 用于从 TMDb 抓取影视候选元数据，为后续字幕搜索、下载和归档流程提供输入清单。
 
-The app queries TMDb discovery endpoints for a year or month, normalizes the results into a small JSON payload, and writes the candidate list to `output/` by default.
+应用会按年份或月份查询 TMDb discovery 接口，将结果规范化为小型 JSON 载荷，并默认写入 `output/` 目录。
 
-## Features
+## 功能
 
-- Fetch movie and TV candidates by year or month.
-- Include TMDb IDs, IMDb IDs, titles, original titles, dates, languages, overviews, and aliases.
-- Write deterministic UTF-8 JSON output for downstream subtitle tooling.
-- Support either a TMDb v3 API key or a TMDb Read Access Token.
+- 按年份或月份抓取电影和剧集候选条目。
+- 输出 TMDb ID、IMDb ID、标题、原始标题、日期、语言、简介和别名。
+- 生成稳定的 UTF-8 JSON，方便下游字幕工具继续处理。
+- 同时支持 TMDb v3 API Key 和 TMDb Read Access Token。
 
-## Quick Start
+## 快速开始
 
 ```bash
 uv sync --extra dev
 cp .env.example .env
 ```
 
-Set `TMDB_API_KEY` in `.env`, then run:
+在 `.env` 中填写 `TMDB_API_KEY` 后运行：
 
 ```bash
 uv run subtitle-harvester-app --year 2026 --month 6 --media-type all
 ```
 
-The default output path is:
+默认输出路径为：
 
 ```text
 output/media_candidates_<year>_<month>_<media-type>.json
 ```
 
-## CLI
+## 命令行
 
 ```bash
 uv run subtitle-harvester-app --help
 ```
 
-Common examples:
+常用示例：
 
 ```bash
 uv run subtitle-harvester-app --year 2026 --media-type movie
@@ -44,9 +44,9 @@ uv run subtitle-harvester-app --year 2026 --month 6 --media-type tv --max-pages 
 uv run subtitle-harvester-app --year 2026 --output output/candidates.json
 ```
 
-## Configuration
+## 配置
 
-`.env.example` is generated from `src/subtitle_harvester_app/config/settings.py`.
+`.env.example` 由 `src/subtitle_harvester_app/config/settings.py` 自动生成。
 
 ```env
 APP_NAME=subtitle-harvester-app
@@ -60,12 +60,12 @@ TMDB_REGION=CN
 TMDB_MAX_PAGES=3
 ```
 
-`TMDB_API_KEY` can be either:
+`TMDB_API_KEY` 可以使用：
 
-- a TMDb v3 API key, sent as the `api_key` query parameter
-- a TMDb Read Access Token, sent as `Authorization: Bearer ...`
+- TMDb v3 API Key，通过 `api_key` 查询参数发送
+- TMDb Read Access Token，通过 `Authorization: Bearer ...` 请求头发送
 
-## Development
+## 开发
 
 ```bash
 make install
@@ -74,28 +74,28 @@ make test
 make check
 ```
 
-Useful Make targets:
+常用 Make 目标：
 
-| Command | Description |
+| 命令 | 说明 |
 | :--- | :--- |
-| `make install` | Install project and development dependencies. |
-| `make run` | Run the CLI with default arguments. |
-| `make test` | Run pytest with coverage. |
-| `make lint` | Run Ruff fixes and formatting. |
-| `make check` | Run Ruff and Mypy checks. |
-| `make env-example` | Regenerate `.env.example` from settings. |
-| `make check-env-example` | Check whether `.env.example` is up to date. |
-| `make clean` | Remove local caches and build artifacts. |
+| `make install` | 安装项目和开发依赖。 |
+| `make run` | 使用默认参数运行 CLI。 |
+| `make test` | 运行带覆盖率的 pytest。 |
+| `make lint` | 运行 Ruff 自动修复和格式化。 |
+| `make check` | 运行 Ruff 和 Mypy 检查。 |
+| `make env-example` | 根据 settings 重新生成 `.env.example`。 |
+| `make check-env-example` | 检查 `.env.example` 是否最新。 |
+| `make clean` | 清理本地缓存和构建产物。 |
 
-## Docker
+## 容器
 
 ```bash
 cp .env.example .env
 docker compose run --rm app
 ```
 
-The compose service mounts local `logs/` and `output/` directories into the container.
+Compose 服务会把本地 `logs/` 和 `output/` 目录挂载进容器。
 
-## License
+## 许可证
 
 MIT

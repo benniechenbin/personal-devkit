@@ -1,0 +1,46 @@
+from __future__ import annotations
+
+from dataclasses import asdict, dataclass
+from pathlib import Path
+from typing import Protocol
+
+from subtitle_harvester_app.schema import MediaCandidate
+
+
+@dataclass(frozen=True)
+class SubtitleSearchResult:
+    provider: str
+    media_type: str
+    tmdb_id: int | None
+    imdb_id: str | None
+    title: str
+    year: int | None
+    language: str
+    release_name: str | None
+    file_name: str | None
+    download_url: str | None
+    source_id: str | None = None
+    season: int | None = None
+    episode: int | None = None
+    score: float = 0.0
+    raw: dict | None = None
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class DownloadResult:
+    provider: str
+    source_url: str
+    local_path: Path
+    status: str
+    error_message: str | None = None
+
+
+class SubtitleProvider(Protocol):
+    name: str
+
+    def search(self, candidate: MediaCandidate) -> list[SubtitleSearchResult]: ...
+
+    def download(self, result: SubtitleSearchResult, output_dir: Path) -> DownloadResult: ...

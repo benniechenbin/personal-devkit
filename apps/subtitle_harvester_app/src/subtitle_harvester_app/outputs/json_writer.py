@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 from subtitle_harvester_app.schema import MediaCandidate
 
@@ -9,10 +10,13 @@ from subtitle_harvester_app.schema import MediaCandidate
 def write_candidates_json(
     candidates: list[MediaCandidate],
     output_path: Path,
+    *,
+    metadata: dict[str, Any] | None = None,
 ) -> Path:
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     payload = {
+        "metadata": metadata or {},
         "count": len(candidates),
         "items": [candidate.to_dict() for candidate in candidates],
     }

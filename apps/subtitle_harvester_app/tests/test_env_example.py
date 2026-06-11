@@ -23,7 +23,7 @@ write_env_example = env_example_script.write_env_example
 def test_build_env_example_from_settings_fields() -> None:
     content = build_env_example(Path("src/subtitle_harvester_app/config/settings.py"))
 
-    assert "# Application name used in logs and runtime metadata." in content
+    assert "# 应用名称，用于日志和运行时元数据。" in content
     assert "APP_NAME=subtitle-harvester-app" in content
     assert "APP_ENV=development" in content
     assert "LOG_DIR=logs" in content
