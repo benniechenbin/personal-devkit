@@ -1,6 +1,6 @@
 [project]
 name = "crawl-engine"
-version = "0.1.0"
+version = "0.2.0"
 description = "A versatile web crawling engine supporting both lightweight HTTPX fetching and advanced Crawl4AI-powered scraping with JS rendering and noise removal."
 readme = "README.md"
 requires-python = ">=3.11"
