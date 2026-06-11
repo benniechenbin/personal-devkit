@@ -1,39 +1,83 @@
-.DS_Store
-
-# Local environment and secrets
-.env
-.env.*
-!.env.example
-!**/.env.example
-!**/template/.env.example.jinja
-.venv/
-venv/
-env/
-.uv-cache/
-
-# Python caches
+# =========================
+# Python
+# =========================
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyo
+*.pyd
+*.so
+
+# =========================
+# Virtual environments
+# =========================
+.venv/
+venv/
+env/
+
+# =========================
+# Build artifacts
+# =========================
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# =========================
+# Test / lint / type-check cache
+# =========================
 .pytest_cache/
-.ruff_cache/
 .mypy_cache/
+.ruff_cache/
 .coverage
 coverage.xml
 htmlcov/
 
-# Build outputs
-build/
-dist/
-*.egg-info/
+# =========================
+# Local environment / secrets
+# =========================
+.env
+.env.*
+!.env.example
+!**/template/.env.example.jinja
 
-# Local data and logs
-data/
-!**/tests/data/
-models/
+# =========================
+# Logs
+# =========================
 logs/
-.learnings/
+*.log
 
-# Editors
+# =========================
+# Generated outputs
+# =========================
+/output/
+/data/
+/tmp/
+/temp/
+
+apps/*/output/
+apps/*/logs/
+apps/*/data/
+apps/*/tmp/
+apps/*/temp/
+
+packages/*/output/
+packages/*/data/
+packages/*/logs/
+packages/*/tmp/
+packages/*/temp/
+
+# =========================
+# Crawling / download artifacts
+# =========================
+*.part
+*.download
+*.tmp
+
+# =========================
+# OS / IDE
+# =========================
+.DS_Store
+Thumbs.db
 .idea/
 .vscode/
