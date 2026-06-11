@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Protocol
 
 from subtitle_harvester_app.schema import MediaCandidate
 
@@ -23,9 +23,9 @@ class SubtitleSearchResult:
     season: int | None = None
     episode: int | None = None
     score: float = 0.0
-    raw: dict | None = None
+    raw: dict[str, Any] | None = None
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 

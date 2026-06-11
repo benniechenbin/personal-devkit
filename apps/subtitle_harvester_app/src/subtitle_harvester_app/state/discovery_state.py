@@ -4,7 +4,7 @@ import json
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from subtitle_harvester_app.schema import MediaCandidate
 
@@ -37,7 +37,7 @@ def load_seen_state(path: Path) -> dict[str, Any]:
             "discovered": {},
         }
 
-    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload = cast(dict[str, Any], json.loads(path.read_text(encoding="utf-8")))
     payload.setdefault("version", 1)
     payload.setdefault("discovered", {})
     return payload

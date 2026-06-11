@@ -4,7 +4,11 @@ from subtitle_harvester_app.config.settings import Settings, get_settings
 from subtitle_harvester_app.observability.logger import logger, setup_logger
 
 
-def init_workspace(app_settings: Settings | None = None) -> Settings:
+def init_workspace(
+    app_settings: Settings | None = None,
+    *,
+    require_tmdb: bool = False,
+) -> Settings:
     settings = app_settings or get_settings()
 
     setup_logger(
@@ -13,7 +17,7 @@ def init_workspace(app_settings: Settings | None = None) -> Settings:
     )
     settings.resolved_output_dir.mkdir(parents=True, exist_ok=True)
 
-    if not settings.tmdb_api_key:
+    if require_tmdb and not settings.tmdb_api_key:
         raise RuntimeError(
             "缺少 TMDB_API_KEY，请在 .env 中配置 TMDb v3 API Key 或 Read Access Token。"
         )

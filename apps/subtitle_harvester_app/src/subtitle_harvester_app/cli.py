@@ -40,7 +40,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--no-update-state",
         action="store_true",
-        help="Write snapshot and batch without updating seen state. Useful for dry-run checks.",
+        help="写出 snapshot 和 batch，但不更新 seen state，适合 dry-run 检查。",
     )
     return parser.parse_args(argv)
 
@@ -48,19 +48,19 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 def _month(value: str) -> int:
     month = int(value)
     if month < 1 or month > 12:
-        raise argparse.ArgumentTypeError("month must be between 1 and 12")
+        raise argparse.ArgumentTypeError("month 必须在 1 到 12 之间")
     return month
 
 
 def _positive_int(value: str) -> int:
     parsed = int(value)
     if parsed < 1:
-        raise argparse.ArgumentTypeError("value must be greater than or equal to 1")
+        raise argparse.ArgumentTypeError("值必须大于等于 1")
     return parsed
 
 
 def _run_id() -> str:
-    return datetime.now().strftime("%Y%m%d_%H%M%S")
+    return datetime.now().strftime("%Y%m%d_%H%M%S_%f")
 
 
 def _period_part(year: int, month: int | None) -> str:
@@ -75,7 +75,7 @@ def _media_types(media_type: str) -> tuple[MediaType, ...]:
 
 def main(argv: Sequence[str] | None = None) -> None:
     args = parse_args(argv)
-    settings = init_workspace(get_settings())
+    settings = init_workspace(get_settings(), require_tmdb=True)
 
     media_types = _media_types(args.media_type)
     period = _period_part(args.year, args.month)
@@ -163,11 +163,11 @@ def main(argv: Sequence[str] | None = None) -> None:
     print(f"已生成快照：{snapshot_path}")
     print(f"已生成批次：{batch_path}")
     print(f"候选总数：{len(candidates)}")
-    print(f"New candidates: {len(new_candidates)}")
+    print(f"新增候选数：{len(new_candidates)}")
     if args.no_update_state:
-        print("State was not updated because --no-update-state was used.")
+        print("已使用 --no-update-state，状态文件未更新。")
     else:
-        print(f"Updated state: {state_path}")
+        print(f"已更新状态：{state_path}")
 
 
 if __name__ == "__main__":
