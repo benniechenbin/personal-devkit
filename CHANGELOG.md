@@ -16,6 +16,9 @@
 - 增加 `packages/document_engine` 能力包和 `apps/ocr_app` 应用壳，完成 OCR 项目的最小分层迁移；应用负责配置、日志、CLI 和落盘，package 保持可复用文档解析能力。
 - 将 `packages/document_engine` 从 `loguru` 解耦，改用标准库 logging，并增加防止 package 重新 import `loguru` 的边界测试。
 - 将 `packages/document_engine` 的公式识别和视觉 OCR 重依赖拆为 `formula`、`vision` extras；`apps/ocr_app` 显式依赖 `document-engine[formula,vision]` 以保持完整运行能力。
+- 增加 `scripts/check_package_boundaries.py`，将 packages 不反向依赖 apps 的边界规则固化为 CI 门禁。
+- 增加 `scripts/check_coverage.py` 和 `make coverage-check`，将 package 覆盖率检查纳入 CI。
+- 为核心 packages 补充 `protocols.py` 与 `exceptions.py`，开始沉淀公共契约层。
 
 ## 0.1.0 - 2026-06-08
 
