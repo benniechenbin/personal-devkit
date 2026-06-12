@@ -33,6 +33,10 @@ def test_build_env_example_from_settings_fields() -> None:
     assert "TMDB_LANGUAGE=zh-CN" in content
     assert "TMDB_REGION=CN" in content
     assert "TMDB_MAX_PAGES=3" in content
+    assert "SUBDL_API_KEY=" in content
+    assert "SUBDL_LANGUAGES=ZH,ZH-CN,EN" in content
+    assert "ASSRT_TOKEN=" in content
+    assert "ASSRT_MAX_DETAIL_RESULTS=5" in content
 
 
 def test_secret_like_fields_are_blank(tmp_path: Path) -> None:

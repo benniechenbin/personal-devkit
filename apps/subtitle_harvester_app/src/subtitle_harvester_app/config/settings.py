@@ -73,6 +73,16 @@ class Settings(BaseSettings):
         default="ZH,ZH-CN,EN",
         description="SubDL 字幕语言筛选，多个语言用逗号分隔。",
     )
+    assrt_token: SecretStr | None = Field(
+        default=None,
+        description="Assrt / 射手网 API Token，用于字幕搜索。",
+    )
+    assrt_max_detail_results: int = Field(
+        default=5,
+        ge=1,
+        le=15,
+        description="每个候选从 Assrt 搜索结果中最多展开详情的数量。",
+    )
 
     @property
     def resolved_log_dir(self) -> Path:

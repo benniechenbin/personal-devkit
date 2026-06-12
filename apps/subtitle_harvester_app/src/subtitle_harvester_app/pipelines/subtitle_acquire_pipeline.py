@@ -4,7 +4,7 @@ import json
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from subtitle_harvester_app.downloads.download_manager import (
@@ -401,7 +401,7 @@ def _write_manifest(result: SubtitleAcquireResult) -> None:
     payload = {
         "schema_version": MANIFEST_SCHEMA_VERSION,
         "status": "success",
-        "created_at": datetime.now(UTC).isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
         "provider": result.selected_result.provider if result.selected_result else None,
         "source_id": result.selected_result.source_id if result.selected_result else None,
         "selected_result": (
