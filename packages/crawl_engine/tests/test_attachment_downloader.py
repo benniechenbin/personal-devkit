@@ -292,6 +292,39 @@ def test_attachment_downloader_returns_failure_when_file_exists_without_overwrit
     asyncio.run(run())
 
 
+def test_attachment_downloader_overwrites_existing_file_when_requested(tmp_path) -> None:
+    async def run() -> None:
+        existing = tmp_path / "demo.pdf"
+        existing.write_bytes(b"old")
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(
+                200,
+                content=b"new",
+                headers={"content-type": "application/pdf"},
+                request=request,
+            )
+
+        client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+        downloader = AttachmentDownloader(client=client)
+
+        try:
+            result = await downloader.download(
+                AttachmentRequest(url="https://example.com/files/demo.pdf"),
+                tmp_path,
+                overwrite=True,
+                auto_rename=False,
+            )
+        finally:
+            await downloader.close()
+
+        assert result.success is True
+        assert result.path == existing
+        assert existing.read_bytes() == b"new"
+
+    asyncio.run(run())
+
+
 def test_attachment_downloader_returns_failure_on_http_error(tmp_path) -> None:
     async def run() -> None:
         def handler(request: httpx.Request) -> httpx.Response:
@@ -316,6 +349,55 @@ def test_attachment_downloader_returns_failure_on_http_error(tmp_path) -> None:
         assert result.success is False
         assert result.error_message == "HTTP 404"
         assert result.content_type == "text/plain"
+
+    asyncio.run(run())
+
+
+def test_attachment_downloader_returns_failure_on_timeout(tmp_path) -> None:
+    async def run() -> None:
+        def handler(request: httpx.Request) -> httpx.Response:
+            raise httpx.TimeoutException("timeout", request=request)
+
+        client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+        downloader = AttachmentDownloader(client=client)
+
+        try:
+            result = await downloader.download(
+                AttachmentRequest(url="https://example.com/timeout.pdf"),
+                tmp_path,
+            )
+        finally:
+            await downloader.close()
+
+        assert result.success is False
+        assert result.error_message == "下载超时"
+        assert result.file_name == ""
+
+    asyncio.run(run())
+
+
+def test_attachment_downloader_returns_failure_on_unexpected_error(tmp_path) -> None:
+    async def run() -> None:
+        def handler(request: httpx.Request) -> httpx.Response:
+            raise RuntimeError("boom")
+
+        client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+        downloader = AttachmentDownloader(client=client)
+
+        try:
+            result = await downloader.download(
+                AttachmentRequest(
+                    url="https://example.com/error.pdf",
+                    file_name="error.pdf",
+                ),
+                tmp_path,
+            )
+        finally:
+            await downloader.close()
+
+        assert result.success is False
+        assert result.error_message == "boom"
+        assert result.file_name == "error.pdf"
 
     asyncio.run(run())
 

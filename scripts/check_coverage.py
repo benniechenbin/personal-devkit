@@ -8,6 +8,7 @@ from typing import Any, cast
 
 TARGETS = {
     "analysis_engine": 80,
+    "core_utils": 80,
     "crawl_engine": 80,
     "document_engine": 30,
     "retrieval_engine": 80,

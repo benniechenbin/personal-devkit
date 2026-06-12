@@ -28,7 +28,7 @@ type-apps:
 	uv run mypy apps/ocr_app/src apps/personal_finance_app/src apps/subtitle_harvester_app/src
 
 type-packages:
-	uv run mypy packages/crawl_engine/src packages/document_engine/src packages/analysis_engine/src
+	uv run mypy packages/core_utils/src packages/crawl_engine/src packages/document_engine/src packages/analysis_engine/src
 
 type-templates: type-template-agent type-template-python type-shared
 
