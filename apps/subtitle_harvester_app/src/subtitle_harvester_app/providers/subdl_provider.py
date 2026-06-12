@@ -1,16 +1,13 @@
 from __future__ import annotations
 
-from pathlib import Path
+import re
 from typing import Any
 from urllib.parse import urljoin
 
 import httpx
 from loguru import logger
 
-from subtitle_harvester_app.providers.base import (
-    DownloadResult,
-    SubtitleSearchResult,
-)
+from subtitle_harvester_app.providers.base import SubtitleSearchResult
 from subtitle_harvester_app.schema import MediaCandidate
 
 
@@ -73,47 +70,6 @@ class SubDLProvider:
 
         return self._parse_results(candidate, payload)
 
-    def download(self, result: SubtitleSearchResult, output_dir: Path) -> DownloadResult:
-        if not result.download_url:
-            return DownloadResult(
-                provider=self.name,
-                source_url="",
-                local_path=output_dir,
-                status="failed",
-                error_message="download_url is empty",
-            )
-
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        source_url = (
-            result.download_url
-            if result.download_url.startswith("http")
-            else urljoin(self.DOWNLOAD_BASE, result.download_url)
-        )
-
-        safe_name = result.file_name or f"{result.title}.{result.language}.zip"
-        local_path = output_dir / _safe_filename(safe_name)
-
-        try:
-            response = httpx.get(source_url, timeout=60.0)
-            response.raise_for_status()
-            local_path.write_bytes(response.content)
-
-            return DownloadResult(
-                provider=self.name,
-                source_url=source_url,
-                local_path=local_path,
-                status="success",
-            )
-        except Exception as exc:
-            return DownloadResult(
-                provider=self.name,
-                source_url=source_url,
-                local_path=local_path,
-                status="failed",
-                error_message=str(exc),
-            )
-
     def _parse_results(
         self,
         candidate: MediaCandidate,
@@ -126,6 +82,7 @@ class SubDLProvider:
             unpack_files = item.get("unpack_files") or []
             if unpack_files:
                 for unpacked in unpack_files:
+                    raw = {**item, **unpacked}
                     results.append(
                         SubtitleSearchResult(
                             provider=self.name,
@@ -141,7 +98,8 @@ class SubDLProvider:
                             source_id=unpacked.get("file_n_id"),
                             season=unpacked.get("season"),
                             episode=unpacked.get("episode"),
-                            raw=unpacked,
+                            score=_score_subdl_result(candidate, raw),
+                            raw=raw,
                         )
                     )
                 continue
@@ -160,18 +118,12 @@ class SubDLProvider:
                     download_url=_resolve_download_url(item.get("url")),
                     season=item.get("season"),
                     episode=item.get("episode"),
+                    score=_score_subdl_result(candidate, item),
                     raw=item,
                 )
             )
 
         return results
-
-
-def _safe_filename(name: str) -> str:
-    invalid_chars = '<>:"/\\|?*'
-    for char in invalid_chars:
-        name = name.replace(char, "_")
-    return name.strip() or "subtitle.zip"
 
 
 def _resolve_download_url(value: str | None) -> str | None:
@@ -180,3 +132,64 @@ def _resolve_download_url(value: str | None) -> str | None:
     if value.startswith("http"):
         return value
     return urljoin(SubDLProvider.DOWNLOAD_BASE, value)
+
+
+def _score_subdl_result(candidate: MediaCandidate, item: dict[str, Any]) -> float:
+    score = 0.0
+
+    if item.get("url"):
+        score += 30.0
+    if item.get("language"):
+        score += 10.0
+    if item.get("file_n_id") or item.get("id"):
+        score += 5.0
+
+    title_terms = _text_terms(candidate.title, candidate.original_title, *candidate.aliases)
+    release_terms = _text_terms(item.get("release_name"), item.get("name"))
+    if title_terms and release_terms:
+        overlap = title_terms & release_terms
+        score += min(25.0, len(overlap) * 8.0)
+
+    if candidate.year and str(candidate.year) in " ".join(
+        str(item.get(field) or "") for field in ("release_name", "name")
+    ):
+        score += 5.0
+
+    score += min(10.0, _numeric_field(item, "downloads", "download_count", "downloaded") / 20.0)
+    score += min(10.0, _numeric_field(item, "rating", "score", "votes"))
+
+    if _looks_hearing_impaired(item.get("release_name"), item.get("name")):
+        score -= 5.0
+
+    return max(score, 0.0)
+
+
+def _text_terms(*values: str | None) -> set[str]:
+    terms: set[str] = set()
+    for value in values:
+        if not value:
+            continue
+        for token in re.split(r"[^a-z0-9\u4e00-\u9fff]+", value.lower()):
+            if len(token) >= 2:
+                terms.add(token)
+    return terms
+
+
+def _numeric_field(item: dict[str, Any], *field_names: str) -> float:
+    for field_name in field_names:
+        value = item.get(field_name)
+        if value is None:
+            continue
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            continue
+    return 0.0
+
+
+def _looks_hearing_impaired(*values: str | None) -> bool:
+    text = " ".join(value.lower() for value in values if value)
+    if "hearing impaired" in text:
+        return True
+    tokens = {token for token in re.split(r"[^a-z0-9]+", text) if token}
+    return bool(tokens & {"hi", "sdh"})

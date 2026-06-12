@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import cast
 
 from crawl_engine import AttachmentDownloader, AttachmentRequest, DownloadedFile
 
@@ -23,7 +24,7 @@ class SubtitleDownloadResult:
     def path(self) -> Path | None:
         if self.downloaded_file is None:
             return None
-        return self.downloaded_file.path
+        return cast(Path | None, self.downloaded_file.path)
 
 
 class SubtitleDownloadManager:

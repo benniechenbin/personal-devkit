@@ -78,6 +78,38 @@ def test_package_processor_returns_failure_when_zip_has_no_subtitles(
     assert result.error_message == "未找到可用字幕文件。"
 
 
+def test_package_processor_ignores_invalid_subtitle_files(tmp_path: Path) -> None:
+    archive_path = tmp_path / "demo.zip"
+    output_dir = tmp_path / "processed"
+
+    with zipfile.ZipFile(archive_path, "w") as zip_file:
+        zip_file.writestr("empty.srt", "")
+        zip_file.writestr("fake.srt", "not a subtitle")
+
+    processor = SubtitlePackageProcessor()
+    result = processor.process(archive_path, output_dir)
+
+    assert result.success is False
+    assert result.subtitle_files == []
+    assert sorted(path.name for path in result.ignored_files) == ["empty.srt", "fake.srt"]
+
+
+def test_package_processor_enforces_app_archive_file_limit(tmp_path: Path) -> None:
+    archive_path = tmp_path / "demo.zip"
+    output_dir = tmp_path / "processed"
+
+    with zipfile.ZipFile(archive_path, "w") as zip_file:
+        zip_file.writestr("one.srt", "1\n00:00:01,000 --> 00:00:02,000\nhello\n")
+        zip_file.writestr("two.srt", "1\n00:00:01,000 --> 00:00:02,000\nhello\n")
+
+    processor = SubtitlePackageProcessor(max_archive_files=1)
+    result = processor.process(archive_path, output_dir)
+
+    assert result.success is False
+    assert result.error_message is not None
+    assert "too many files" in result.error_message
+
+
 def test_package_processor_rejects_unsupported_package_format(
     tmp_path: Path,
 ) -> None:

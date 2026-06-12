@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import json
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 
 from subtitle_harvester_app.downloads.download_manager import (
@@ -28,6 +30,9 @@ DEFAULT_PREFERRED_LANGUAGES = (
     "简体中文",
     "繁體中文",
 )
+DEFAULT_PREFERRED_LANGUAGE_BOOST = 30.0
+MANIFEST_FILE_NAME = "manifest.json"
+MANIFEST_SCHEMA_VERSION = 1
 
 _LANGUAGE_ALIASES: dict[str, set[str]] = {
     "zh": {
@@ -179,6 +184,16 @@ class SubtitleAcquirePipeline:
         raw_dir = media_dir / "raw"
         extracted_dir = media_dir / "extracted"
 
+        if not overwrite:
+            existing_result = _load_existing_result(
+                candidate=candidate,
+                media_dir=media_dir,
+                raw_dir=raw_dir,
+                extracted_dir=extracted_dir,
+            )
+            if existing_result is not None:
+                return existing_result
+
         ranked_results = rank_results(
             results,
             min_score=self.min_score if min_score is None else min_score,
@@ -219,7 +234,7 @@ class SubtitleAcquirePipeline:
                 )
                 continue
 
-            package_result = self.package_processor.process(
+            package_result = await self.package_processor.process_async(
                 download_result.path,
                 extracted_dir,
                 overwrite=overwrite,
@@ -245,7 +260,7 @@ class SubtitleAcquirePipeline:
                 )
             )
 
-            return SubtitleAcquireResult(
+            acquire_result = SubtitleAcquireResult(
                 success=True,
                 candidate=candidate,
                 selected_result=selected,
@@ -256,6 +271,8 @@ class SubtitleAcquirePipeline:
                 package_result=package_result,
                 attempts=tuple(attempts),
             )
+            _write_manifest(acquire_result)
+            return acquire_result
 
         last_attempt = attempts[-1]
 
@@ -292,7 +309,7 @@ def rank_results(
     return sorted(
         downloadable,
         key=lambda item: (
-            0 if _matches_preferred_language(item, preferred_languages) else 1,
+            -_weighted_score(item, preferred_languages),
             -item.score,
         ),
     )
@@ -316,3 +333,92 @@ def select_best_result(
 
 def _media_key(candidate: MediaCandidate) -> str:
     return f"{candidate.media_type}_{candidate.tmdb_id}"
+
+
+def _weighted_score(
+    result: SubtitleSearchResult,
+    preferred_languages: Sequence[str],
+) -> float:
+    score = result.score
+    if _matches_preferred_language(result, preferred_languages):
+        score += DEFAULT_PREFERRED_LANGUAGE_BOOST
+    return score
+
+
+def _load_existing_result(
+    *,
+    candidate: MediaCandidate,
+    media_dir: Path,
+    raw_dir: Path,
+    extracted_dir: Path,
+) -> SubtitleAcquireResult | None:
+    manifest_path = media_dir / MANIFEST_FILE_NAME
+    if not manifest_path.exists():
+        return None
+
+    try:
+        payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+
+    if payload.get("schema_version") != MANIFEST_SCHEMA_VERSION:
+        return None
+    if payload.get("status") != "success":
+        return None
+
+    subtitle_files = [Path(value) for value in payload.get("subtitle_files", [])]
+    if not subtitle_files or not all(path.exists() and path.is_file() for path in subtitle_files):
+        return None
+
+    selected_payload = payload.get("selected_result")
+    selected_result = (
+        SubtitleSearchResult(**selected_payload) if isinstance(selected_payload, dict) else None
+    )
+
+    package_result = ProcessedSubtitlePackage(
+        success=True,
+        source_path=Path(payload.get("source_path") or manifest_path),
+        output_dir=Path(payload.get("output_dir") or extracted_dir),
+        subtitle_files=subtitle_files,
+        ignored_files=[Path(value) for value in payload.get("ignored_files", [])],
+    )
+
+    return SubtitleAcquireResult(
+        success=True,
+        candidate=candidate,
+        selected_result=selected_result,
+        media_dir=media_dir,
+        raw_dir=raw_dir,
+        extracted_dir=extracted_dir,
+        package_result=package_result,
+    )
+
+
+def _write_manifest(result: SubtitleAcquireResult) -> None:
+    if result.package_result is None:
+        return
+
+    payload = {
+        "schema_version": MANIFEST_SCHEMA_VERSION,
+        "status": "success",
+        "created_at": datetime.now(UTC).isoformat(),
+        "provider": result.selected_result.provider if result.selected_result else None,
+        "source_id": result.selected_result.source_id if result.selected_result else None,
+        "selected_result": (
+            result.selected_result.to_dict() if result.selected_result is not None else None
+        ),
+        "source_path": str(result.package_result.source_path),
+        "output_dir": str(result.package_result.output_dir),
+        "subtitle_files": [str(path) for path in result.package_result.subtitle_files],
+        "ignored_files": [str(path) for path in result.package_result.ignored_files],
+        "download_url": result.download_result.source_url if result.download_result else None,
+    }
+
+    result.media_dir.mkdir(parents=True, exist_ok=True)
+    manifest_path = result.media_dir / MANIFEST_FILE_NAME
+    temp_path = manifest_path.with_name(f".{manifest_path.name}.tmp")
+    temp_path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    temp_path.replace(manifest_path)

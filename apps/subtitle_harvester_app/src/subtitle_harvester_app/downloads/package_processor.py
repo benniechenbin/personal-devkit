@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+import re
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
@@ -8,6 +10,9 @@ from core_utils.files import ArchiveExtractor, ArchiveRequest
 
 SUBTITLE_SUFFIXES = {".srt", ".ass", ".ssa"}
 ARCHIVE_SUFFIXES = {".zip"}
+DEFAULT_MAX_SUBTITLE_ARCHIVE_FILES = 50
+DEFAULT_MAX_SUBTITLE_UNCOMPRESSED_BYTES = 50 * 1024 * 1024
+DEFAULT_MAX_SUBTITLE_FILE_BYTES = 10 * 1024 * 1024
 
 
 @dataclass(frozen=True)
@@ -36,8 +41,32 @@ class SubtitlePackageProcessor:
     - AI_SUBTITLE_LIBRARY 入库。
     """
 
-    def __init__(self, extractor: ArchiveExtractor | None = None) -> None:
+    def __init__(
+        self,
+        extractor: ArchiveExtractor | None = None,
+        *,
+        max_archive_files: int = DEFAULT_MAX_SUBTITLE_ARCHIVE_FILES,
+        max_total_uncompressed_bytes: int = DEFAULT_MAX_SUBTITLE_UNCOMPRESSED_BYTES,
+        max_subtitle_file_bytes: int = DEFAULT_MAX_SUBTITLE_FILE_BYTES,
+    ) -> None:
         self.extractor = extractor or ArchiveExtractor()
+        self.max_archive_files = max_archive_files
+        self.max_total_uncompressed_bytes = max_total_uncompressed_bytes
+        self.max_subtitle_file_bytes = max_subtitle_file_bytes
+
+    async def process_async(
+        self,
+        source_path: str | Path,
+        output_dir: str | Path,
+        *,
+        overwrite: bool = False,
+    ) -> ProcessedSubtitlePackage:
+        return await asyncio.to_thread(
+            self.process,
+            source_path,
+            output_dir,
+            overwrite=overwrite,
+        )
 
     def process(
         self,
@@ -73,6 +102,19 @@ class SubtitlePackageProcessor:
         suffix = source.suffix.lower()
 
         if suffix in SUBTITLE_SUFFIXES:
+            if not _is_valid_subtitle_file(
+                source,
+                max_size_bytes=self.max_subtitle_file_bytes,
+            ):
+                return ProcessedSubtitlePackage(
+                    success=False,
+                    source_path=source,
+                    output_dir=target_dir,
+                    subtitle_files=[],
+                    ignored_files=[source],
+                    error_message="字幕文件无效或为空。",
+                )
+
             copied = _copy_subtitle_file(
                 source,
                 target_dir,
@@ -103,6 +145,8 @@ class SubtitlePackageProcessor:
                 output_dir=extract_dir,
                 overwrite=overwrite,
                 auto_rename=not overwrite,
+                max_files=self.max_archive_files,
+                max_total_uncompressed_bytes=self.max_total_uncompressed_bytes,
             )
         )
 
@@ -121,7 +165,10 @@ class SubtitlePackageProcessor:
 
         for extracted_file in extracted.files:
             path = extracted_file.path
-            if path.suffix.lower() in SUBTITLE_SUFFIXES:
+            if path.suffix.lower() in SUBTITLE_SUFFIXES and _is_valid_subtitle_file(
+                path,
+                max_size_bytes=self.max_subtitle_file_bytes,
+            ):
                 subtitle_files.append(path)
             else:
                 ignored_files.append(path)
@@ -165,3 +212,47 @@ def _get_available_path(path: Path) -> Path:
         if not candidate.exists():
             return candidate
         index += 1
+
+
+def _is_valid_subtitle_file(path: Path, *, max_size_bytes: int) -> bool:
+    try:
+        size = path.stat().st_size
+    except OSError:
+        return False
+
+    if size <= 0 or size > max_size_bytes:
+        return False
+
+    try:
+        sample = path.read_bytes()[: 64 * 1024]
+    except OSError:
+        return False
+
+    text = _decode_subtitle_sample(sample)
+    if not text or _looks_like_binary(sample):
+        return False
+
+    suffix = path.suffix.lower()
+    if suffix == ".srt":
+        return bool(re.search(r"\d{1,2}:\d{2}:\d{2}[,.]\d{1,3}\s*-->\s*", text))
+    if suffix in {".ass", ".ssa"}:
+        return "[script info]" in text.lower() or "dialogue:" in text.lower()
+
+    return False
+
+
+def _decode_subtitle_sample(content: bytes) -> str:
+    for encoding in ("utf-8-sig", "utf-8", "gb18030", "utf-16"):
+        try:
+            return content.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+    return ""
+
+
+def _looks_like_binary(content: bytes) -> bool:
+    if not content:
+        return False
+    if content.startswith((b"\xff\xfe", b"\xfe\xff")):
+        return False
+    return content.count(b"\x00") > 0

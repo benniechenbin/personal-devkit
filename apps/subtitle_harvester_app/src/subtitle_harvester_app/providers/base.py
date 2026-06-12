@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from pathlib import Path
 from typing import Any, Protocol
 
 from subtitle_harvester_app.schema import MediaCandidate
@@ -29,18 +28,7 @@ class SubtitleSearchResult:
         return asdict(self)
 
 
-@dataclass(frozen=True)
-class DownloadResult:
-    provider: str
-    source_url: str
-    local_path: Path
-    status: str
-    error_message: str | None = None
-
-
 class SubtitleProvider(Protocol):
     name: str
 
     def search(self, candidate: MediaCandidate) -> list[SubtitleSearchResult]: ...
-
-    def download(self, result: SubtitleSearchResult, output_dir: Path) -> DownloadResult: ...

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import zipfile
 from pathlib import Path
 
@@ -176,6 +177,29 @@ class FailFirstDownloadManager:
         )
 
 
+class CountingDownloadManager(FakeDownloadManager):
+    def __init__(self) -> None:
+        self.calls = 0
+
+    async def download(
+        self,
+        result: SubtitleSearchResult,
+        output_dir: str | Path,
+        *,
+        max_size_bytes: int | None = None,
+        overwrite: bool = False,
+        auto_rename: bool = True,
+    ) -> SubtitleDownloadResult:
+        self.calls += 1
+        return await super().download(
+            result,
+            output_dir,
+            max_size_bytes=max_size_bytes,
+            overwrite=overwrite,
+            auto_rename=auto_rename,
+        )
+
+
 def test_select_best_result_chooses_highest_score_downloadable_result() -> None:
     low = _result(score=50.0, file_name="low.zip")
     high = _result(score=90.0, file_name="high.zip")
@@ -300,6 +324,27 @@ def test_select_best_result_prefers_chinese_over_higher_scored_english() -> None
     )
 
     assert selected == chinese
+
+
+def test_select_best_result_allows_large_quality_gap_to_win() -> None:
+    english = _result(
+        score=120.0,
+        language="English",
+        file_name="Demo.Movie.2026.English.zip",
+    )
+    chinese = _result(
+        score=70.0,
+        language="Chinese",
+        file_name="Demo.Movie.2026.Chinese.zip",
+    )
+
+    selected = select_best_result(
+        [english, chinese],
+        min_score=0,
+        preferred_languages=("zh", "chinese"),
+    )
+
+    assert selected == english
 
 
 def test_select_best_result_falls_back_to_highest_score_when_no_chinese() -> None:
@@ -430,5 +475,69 @@ def test_subtitle_acquire_pipeline_tries_next_result_after_download_failure(
         assert result.download_result.path == result.raw_dir / "fallback.zip"
 
         assert [path.name for path in result.subtitle_files] == ["fallback.zh.srt"]
+
+    asyncio.run(run())
+
+
+def test_subtitle_acquire_pipeline_reuses_manifest_without_redownloading(
+    tmp_path: Path,
+) -> None:
+    async def run() -> None:
+        download_manager = CountingDownloadManager()
+        pipeline = SubtitleAcquirePipeline(
+            download_manager=download_manager,  # type: ignore[arg-type]
+        )
+
+        first = await pipeline.acquire(
+            _candidate(),
+            [_result(score=90.0, file_name="best.zip")],
+            tmp_path,
+        )
+        second = await pipeline.acquire(
+            _candidate(),
+            [_result(score=90.0, file_name="best.zip")],
+            tmp_path,
+        )
+
+        assert first.success is True
+        assert second.success is True
+        assert download_manager.calls == 1
+        assert second.download_result is None
+        assert [path.name for path in second.subtitle_files] == ["demo.zh.srt"]
+        manifest_path = second.media_dir / "manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        assert manifest["schema_version"] == 1
+        assert manifest["status"] == "success"
+        assert manifest["provider"] == "subdl"
+        assert manifest["source_id"] == "sub-1"
+        assert manifest["created_at"]
+
+    asyncio.run(run())
+
+
+def test_subtitle_acquire_pipeline_ignores_incompatible_manifest(
+    tmp_path: Path,
+) -> None:
+    async def run() -> None:
+        media_dir = tmp_path / "subtitles" / "inbox" / "movie_980477"
+        media_dir.mkdir(parents=True)
+        (media_dir / "manifest.json").write_text(
+            json.dumps({"schema_version": 999, "status": "success"}),
+            encoding="utf-8",
+        )
+
+        download_manager = CountingDownloadManager()
+        pipeline = SubtitleAcquirePipeline(
+            download_manager=download_manager,  # type: ignore[arg-type]
+        )
+
+        result = await pipeline.acquire(
+            _candidate(),
+            [_result(score=90.0, file_name="best.zip")],
+            tmp_path,
+        )
+
+        assert result.success is True
+        assert download_manager.calls == 1
 
     asyncio.run(run())

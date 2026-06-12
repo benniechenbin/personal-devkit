@@ -4,7 +4,7 @@
 
 ## 未发布
 
-- 暂无。
+- 新增 `packages/core_utils`，将通用 zip 解压能力和相关 schema 从 `crawl_engine` 下沉到 `core_utils.files`，供各 packages/apps 按单向依赖复用。
 
 ## 0.2.0 - 2026-06-11
 
