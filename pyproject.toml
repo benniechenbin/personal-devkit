@@ -35,6 +35,7 @@ members = [
     "packages/retrieval_engine",
     "packages/crawl_engine",
     "packages/analysis_engine",
+    "packages/provider_engine",
     "templates/agent_enterprise_boilerplate",
     "templates/python_project_boilerplate",
 ]
@@ -49,6 +50,7 @@ testpaths = [
     "packages/retrieval_engine/tests",
     "packages/crawl_engine/tests",
     "packages/analysis_engine/tests",
+    "packages/provider_engine/tests",
     "templates/agent_enterprise_boilerplate/tests",
     "templates/python_project_boilerplate/tests",
 ]
@@ -69,12 +71,14 @@ pythonpath = [
     "packages/crawl_engine/src",
     "packages/analysis_engine",
     "packages/analysis_engine/src",
+    "packages/provider_engine",
+    "packages/provider_engine/src",
     "templates/agent_enterprise_boilerplate",
     "templates/agent_enterprise_boilerplate/src",
     "templates/python_project_boilerplate",
     "templates/python_project_boilerplate/src",
 ]
-addopts = "-q --import-mode=importlib --cov=retrieval_engine --cov=document_engine --cov=crawl_engine --cov=core_utils --cov=analysis_engine --cov=ocr_app --cov=personal_finance_app --cov=subtitle_harvester_app --cov=app --cov=python_project_boilerplate --cov-report=term-missing"
+addopts = "-q --import-mode=importlib --cov=retrieval_engine --cov=document_engine --cov=crawl_engine --cov=core_utils --cov=analysis_engine --cov=provider_engine --cov=ocr_app --cov=personal_finance_app --cov=subtitle_harvester_app --cov=app --cov=python_project_boilerplate --cov-report=term-missing"
 
 [tool.ruff]
 line-length = 100
@@ -130,6 +134,7 @@ source = [
     "crawl_engine",
     "core_utils",
     "analysis_engine",
+    "provider_engine",
     "ocr_app",
     "personal_finance_app",
     "subtitle_harvester_app",

@@ -2,7 +2,7 @@ import asyncio
 
 from app.config.settings import Settings
 from app.container.container import Container
-from app.runtime.context import RunContext
+from app.observability.context import RunContext
 from app.workflows.base import BaseWorkflow
 from app.workflows.langgraph_workflow import LangGraphWorkflow
 

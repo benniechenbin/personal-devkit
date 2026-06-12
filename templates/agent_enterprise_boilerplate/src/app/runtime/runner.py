@@ -1,8 +1,8 @@
 from typing import Any
 
 from app.container.container import Container
+from app.observability.context import RunContext
 from app.observability.logger import logger, set_trace_id
-from app.runtime.context import RunContext
 from app.runtime.events import RunStatus
 from app.workflows.base import BaseWorkflow
 

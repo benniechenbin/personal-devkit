@@ -11,6 +11,7 @@ TARGETS = {
     "core_utils": 80,
     "crawl_engine": 80,
     "document_engine": 30,
+    "provider_engine": 60,
     "retrieval_engine": 80,
     "ocr_app": 25,
     "personal_finance_app": 20,

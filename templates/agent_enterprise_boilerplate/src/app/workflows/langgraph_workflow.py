@@ -3,7 +3,7 @@ from typing import Any
 from langgraph.graph import END, START, StateGraph
 
 from app.container.container import Container
-from app.runtime.context import RunContext
+from app.observability.context import RunContext
 from app.workflows.base import BaseWorkflow
 from app.workflows.nodes.executor_node import make_executor_node
 from app.workflows.nodes.planner_node import make_planner_node

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from app.runtime.context import RunContext
+from app.observability.context import RunContext
 
 
 class BaseWorkflow(ABC):

@@ -8,7 +8,7 @@ from app.config.settings import Settings
 from app.container.container import Container
 from app.core.bootstrap import shutdown_workspace
 from app.lifecycle import App, build_app
-from app.runtime.context import RunContext
+from app.observability.context import RunContext
 from app.runtime.runner import AgentRunner
 from app.workflows.base import BaseWorkflow
 

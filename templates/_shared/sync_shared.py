@@ -43,6 +43,57 @@ SHARED_FILES = (
             / "banner.py",
         ),
     ),
+    SharedFile(
+        source=SHARED_DIR / "observability" / "logger.py",
+        targets=(
+            ROOT_DIR
+            / "templates"
+            / "python_project_boilerplate"
+            / "src"
+            / "python_project_boilerplate"
+            / "observability"
+            / "logger.py",
+            ROOT_DIR
+            / "templates"
+            / "python_project_boilerplate"
+            / "template"
+            / "src"
+            / "{{ package_name }}"
+            / "observability"
+            / "logger.py",
+            ROOT_DIR
+            / "templates"
+            / "agent_enterprise_boilerplate"
+            / "src"
+            / "app"
+            / "observability"
+            / "logger.py",
+        ),
+    ),
+    SharedFile(
+        source=SHARED_DIR / "observability" / "context.py",
+        targets=(
+            ROOT_DIR
+            / "templates"
+            / "agent_enterprise_boilerplate"
+            / "src"
+            / "app"
+            / "observability"
+            / "context.py",
+        ),
+    ),
+    SharedFile(
+        source=SHARED_DIR / "observability" / "decorators.py",
+        targets=(
+            ROOT_DIR
+            / "templates"
+            / "agent_enterprise_boilerplate"
+            / "src"
+            / "app"
+            / "observability"
+            / "decorators.py",
+        ),
+    ),
 )
 
 

@@ -2,13 +2,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import cast
+from typing import Protocol
 
-from crawl_engine import AttachmentDownloader, AttachmentRequest, DownloadedFile
+from crawl_engine import AttachmentDownloader, AttachmentRequest
 
 from subtitle_harvester_app.providers.base import SubtitleSearchResult
 
 DEFAULT_MAX_SUBTITLE_PACKAGE_BYTES = 100 * 1024 * 1024
+
+
+class DownloadedFileResult(Protocol):
+    path: Path | None
+    error_message: str | None
 
 
 @dataclass(frozen=True)
@@ -17,14 +22,14 @@ class SubtitleDownloadResult:
     provider: str
     source_url: str
     output_dir: Path
-    downloaded_file: DownloadedFile | None = None
+    downloaded_file: DownloadedFileResult | None = None
     error_message: str | None = None
 
     @property
     def path(self) -> Path | None:
         if self.downloaded_file is None:
             return None
-        return cast(Path | None, self.downloaded_file.path)
+        return self.downloaded_file.path
 
 
 class SubtitleDownloadManager:
