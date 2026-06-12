@@ -84,8 +84,9 @@ asyncio.run(main())
 import asyncio
 from pathlib import Path
 
-from crawl_engine.downloads import ArchiveExtractor, AttachmentDownloader
-from crawl_engine.schema import ArchiveRequest, AttachmentRequest
+from core_utils.files import ArchiveExtractor, ArchiveRequest
+from crawl_engine.downloads import AttachmentDownloader
+from crawl_engine.schema import AttachmentRequest
 
 async def main():
     downloader = AttachmentDownloader()

@@ -6,16 +6,16 @@ import shutil
 import zipfile
 from pathlib import Path
 
-from crawl_engine.schema import ArchiveRequest, ExtractedArchive, ExtractedFile
+from core_utils.files.schema import ArchiveRequest, ExtractedArchive, ExtractedFile
 
 logger = logging.getLogger(__name__)
 
 
 class ArchiveExtractor:
-    """通用压缩包解压器。
+    """Generic archive extractor.
 
-    当前第一版只支持 zip。
-    不包含任何字幕业务规则，例如删除 .nfo、只保留 .srt 等。
+    Currently supports zip archives only. It contains no domain-specific filtering
+    rules, so higher-level packages can decide which extracted files they need.
     """
 
     def extract(self, request: ArchiveRequest) -> ExtractedArchive:
@@ -25,7 +25,7 @@ class ArchiveExtractor:
             return ExtractedArchive(
                 success=False,
                 archive_path=archive_path,
-                error_message=f"压缩包不存在：{archive_path}",
+                error_message=f"Archive does not exist: {archive_path}",
                 metadata=request.metadata,
             )
 
@@ -33,7 +33,7 @@ class ArchiveExtractor:
             return ExtractedArchive(
                 success=False,
                 archive_path=archive_path,
-                error_message=f"期望压缩包文件，但得到目录：{archive_path}",
+                error_message=f"Expected archive file, got directory: {archive_path}",
                 metadata=request.metadata,
             )
 
@@ -41,7 +41,7 @@ class ArchiveExtractor:
             return ExtractedArchive(
                 success=False,
                 archive_path=archive_path,
-                error_message=f"暂不支持的压缩包格式：{archive_path.suffix}",
+                error_message=f"Unsupported archive format: {archive_path.suffix}",
                 metadata=request.metadata,
             )
 
@@ -63,7 +63,7 @@ class ArchiveExtractor:
             )
 
         except Exception as exc:
-            logger.exception("压缩包解压失败：%s", archive_path)
+            logger.exception("Archive extraction failed: %s", archive_path)
             return ExtractedArchive(
                 success=False,
                 archive_path=archive_path,
@@ -73,7 +73,7 @@ class ArchiveExtractor:
             )
 
     async def extract_async(self, request: ArchiveRequest) -> ExtractedArchive:
-        """异步包装，避免在 async pipeline 中阻塞事件循环。"""
+        """Run extraction in a worker thread for async pipelines."""
         return await asyncio.to_thread(self.extract, request)
 
     def _extract_zip(
@@ -88,12 +88,14 @@ class ArchiveExtractor:
             file_infos = [info for info in zip_ref.infolist() if not info.is_dir()]
 
             if len(file_infos) > request.max_files:
-                raise ValueError(f"压缩包文件数量过多：{len(file_infos)} > {request.max_files}")
+                raise ValueError(
+                    f"Archive contains too many files: {len(file_infos)} > {request.max_files}"
+                )
 
             total_uncompressed = sum(max(0, info.file_size) for info in file_infos)
             if total_uncompressed > request.max_total_uncompressed_bytes:
                 raise ValueError(
-                    "压缩包解压后体积过大："
+                    "Archive uncompressed size exceeds limit: "
                     f"{total_uncompressed} > {request.max_total_uncompressed_bytes}"
                 )
 
@@ -104,7 +106,7 @@ class ArchiveExtractor:
                     if request.auto_rename:
                         target_path = _get_available_path(target_path)
                     elif not request.overwrite:
-                        raise FileExistsError(f"文件已存在：{target_path}")
+                        raise FileExistsError(f"File already exists: {target_path}")
 
                 target_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -124,27 +126,26 @@ class ArchiveExtractor:
 
 
 def _safe_target_path(output_dir: Path, member_name: str) -> Path:
-    """生成安全解压路径，防止 zip path traversal。"""
     normalized_name = member_name.replace("\\", "/").strip()
 
     if not normalized_name:
-        raise ValueError("压缩包内存在空文件名。")
+        raise ValueError("Archive member has an empty file name.")
 
     member_path = Path(normalized_name)
 
     if member_path.is_absolute():
-        raise ValueError(f"拒绝解压绝对路径文件：{member_name}")
+        raise ValueError(f"Refusing to extract absolute path member: {member_name}")
 
     safe_parts: list[str] = []
     for part in member_path.parts:
         if part in ("", "."):
             continue
         if part == "..":
-            raise ValueError(f"拒绝解压路径穿越文件：{member_name}")
+            raise ValueError(f"Refusing to extract path traversal member: {member_name}")
         safe_parts.append(part)
 
     if not safe_parts:
-        raise ValueError(f"压缩包内文件路径无效：{member_name}")
+        raise ValueError(f"Archive member path is invalid: {member_name}")
 
     target_path = output_dir.joinpath(*safe_parts)
 
@@ -154,7 +155,7 @@ def _safe_target_path(output_dir: Path, member_name: str) -> Path:
     try:
         target.relative_to(root)
     except ValueError as exc:
-        raise ValueError(f"拒绝解压到目标目录外：{member_name}") from exc
+        raise ValueError(f"Refusing to extract outside target directory: {member_name}") from exc
 
     return target_path
 

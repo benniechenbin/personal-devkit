@@ -4,8 +4,7 @@ import asyncio
 import zipfile
 from pathlib import Path
 
-from crawl_engine.downloads import ArchiveExtractor
-from crawl_engine.schema import ArchiveRequest
+from core_utils.files import ArchiveExtractor, ArchiveRequest
 
 
 def _create_zip(archive_path: Path, files: dict[str, bytes]) -> None:
@@ -14,7 +13,7 @@ def _create_zip(archive_path: Path, files: dict[str, bytes]) -> None:
             zip_ref.writestr(file_name, content)
 
 
-def test_archive_extractor_extracts_nested_zip(tmp_path) -> None:
+def test_archive_extractor_extracts_nested_zip(tmp_path: Path) -> None:
     archive_path = tmp_path / "demo.zip"
     output_dir = tmp_path / "output"
     _create_zip(
@@ -41,7 +40,7 @@ def test_archive_extractor_extracts_nested_zip(tmp_path) -> None:
     assert (output_dir / "nested" / "report.md").read_bytes() == b"nested"
 
 
-def test_archive_extractor_auto_renames_existing_file(tmp_path) -> None:
+def test_archive_extractor_auto_renames_existing_file(tmp_path: Path) -> None:
     archive_path = tmp_path / "demo.zip"
     output_dir = tmp_path / "output"
     output_dir.mkdir()
@@ -58,7 +57,7 @@ def test_archive_extractor_auto_renames_existing_file(tmp_path) -> None:
     assert [file.file_name for file in result.files] == ["demo_1.txt"]
 
 
-def test_archive_extractor_rejects_path_traversal_before_writing(tmp_path) -> None:
+def test_archive_extractor_rejects_path_traversal_before_writing(tmp_path: Path) -> None:
     archive_path = tmp_path / "demo.zip"
     output_dir = tmp_path / "output"
     _create_zip(
@@ -75,12 +74,12 @@ def test_archive_extractor_rejects_path_traversal_before_writing(tmp_path) -> No
 
     assert result.success is False
     assert result.error_message is not None
-    assert "路径穿越" in result.error_message
+    assert "path traversal" in result.error_message
     assert not (output_dir / "safe.txt").exists()
     assert not (tmp_path / "evil.txt").exists()
 
 
-def test_archive_extractor_returns_failure_for_non_zip(tmp_path) -> None:
+def test_archive_extractor_returns_failure_for_non_zip(tmp_path: Path) -> None:
     archive_path = tmp_path / "demo.txt"
     archive_path.write_text("not zip", encoding="utf-8")
 
@@ -88,10 +87,10 @@ def test_archive_extractor_returns_failure_for_non_zip(tmp_path) -> None:
 
     assert result.success is False
     assert result.error_message is not None
-    assert "暂不支持" in result.error_message
+    assert "Unsupported archive format" in result.error_message
 
 
-def test_archive_extractor_deletes_archive_after_success(tmp_path) -> None:
+def test_archive_extractor_deletes_archive_after_success(tmp_path: Path) -> None:
     archive_path = tmp_path / "demo.zip"
     _create_zip(archive_path, {"demo.txt": b"demo"})
 
@@ -103,7 +102,7 @@ def test_archive_extractor_deletes_archive_after_success(tmp_path) -> None:
     assert not archive_path.exists()
 
 
-def test_archive_extractor_enforces_max_files(tmp_path) -> None:
+def test_archive_extractor_enforces_max_files(tmp_path: Path) -> None:
     archive_path = tmp_path / "demo.zip"
     _create_zip(archive_path, {"a.txt": b"a", "b.txt": b"b"})
 
@@ -111,10 +110,10 @@ def test_archive_extractor_enforces_max_files(tmp_path) -> None:
 
     assert result.success is False
     assert result.error_message is not None
-    assert "文件数量过多" in result.error_message
+    assert "too many files" in result.error_message
 
 
-def test_archive_extractor_enforces_max_total_uncompressed_bytes(tmp_path) -> None:
+def test_archive_extractor_enforces_max_total_uncompressed_bytes(tmp_path: Path) -> None:
     archive_path = tmp_path / "demo.zip"
     _create_zip(archive_path, {"big.txt": b"12345"})
 
@@ -124,10 +123,10 @@ def test_archive_extractor_enforces_max_total_uncompressed_bytes(tmp_path) -> No
 
     assert result.success is False
     assert result.error_message is not None
-    assert "体积过大" in result.error_message
+    assert "uncompressed size exceeds limit" in result.error_message
 
 
-def test_archive_extractor_async_wrapper(tmp_path) -> None:
+def test_archive_extractor_async_wrapper(tmp_path: Path) -> None:
     archive_path = tmp_path / "demo.zip"
     _create_zip(archive_path, {"demo.txt": b"demo"})
 

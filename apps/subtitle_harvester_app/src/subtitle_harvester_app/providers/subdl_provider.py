@@ -137,7 +137,7 @@ class SubDLProvider:
                             language=unpacked.get("language") or "",
                             release_name=unpacked.get("release_name"),
                             file_name=unpacked.get("name"),
-                            download_url=unpacked.get("url"),
+                            download_url=_resolve_download_url(unpacked.get("url")),
                             source_id=unpacked.get("file_n_id"),
                             season=unpacked.get("season"),
                             episode=unpacked.get("episode"),
@@ -157,7 +157,7 @@ class SubDLProvider:
                     language=item.get("language") or "",
                     release_name=item.get("release_name"),
                     file_name=item.get("name"),
-                    download_url=item.get("url"),
+                    download_url=_resolve_download_url(item.get("url")),
                     season=item.get("season"),
                     episode=item.get("episode"),
                     raw=item,
@@ -172,3 +172,11 @@ def _safe_filename(name: str) -> str:
     for char in invalid_chars:
         name = name.replace(char, "_")
     return name.strip() or "subtitle.zip"
+
+
+def _resolve_download_url(value: str | None) -> str | None:
+    if not value:
+        return None
+    if value.startswith("http"):
+        return value
+    return urljoin(SubDLProvider.DOWNLOAD_BASE, value)

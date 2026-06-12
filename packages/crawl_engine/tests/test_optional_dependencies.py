@@ -9,27 +9,19 @@ def test_import_crawl_engine_without_crawl4ai_runtime_dependency() -> None:
 
 def test_import_httpx_engine_from_public_api() -> None:
     from crawl_engine import (
-        ArchiveExtractor,
-        ArchiveRequest,
         AttachmentDownloader,
         AttachmentRequest,
         Crawl4AIEngine,
         DownloadedFile,
-        ExtractedArchive,
-        ExtractedFile,
         HttpxEngine,
         ScrapeRequest,
         ScrapeResponse,
     )
 
-    assert ArchiveExtractor is not None
-    assert ArchiveRequest is not None
     assert AttachmentDownloader is not None
     assert AttachmentRequest is not None
     assert Crawl4AIEngine is not None
     assert DownloadedFile is not None
-    assert ExtractedArchive is not None
-    assert ExtractedFile is not None
     assert HttpxEngine is not None
     assert ScrapeRequest is not None
     assert ScrapeResponse is not None

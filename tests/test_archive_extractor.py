@@ -3,8 +3,7 @@ from __future__ import annotations
 import zipfile
 from pathlib import Path
 
-from crawl_engine.downloads import ArchiveExtractor
-from crawl_engine.schema import ArchiveRequest
+from core_utils.files import ArchiveExtractor, ArchiveRequest
 
 
 def _create_zip(path: Path, files: dict[str, str]) -> Path:
@@ -85,7 +84,7 @@ def test_archive_extractor_rejects_path_traversal(tmp_path: Path) -> None:
 
     assert result.success is False
     assert result.error_message is not None
-    assert "路径穿越" in result.error_message
+    assert "path traversal" in result.error_message
     assert not (tmp_path / "evil.txt").exists()
 
 
@@ -98,7 +97,7 @@ def test_archive_extractor_returns_failure_for_non_zip(tmp_path: Path) -> None:
 
     assert result.success is False
     assert result.error_message is not None
-    assert "暂不支持" in result.error_message
+    assert "Unsupported archive format" in result.error_message
 
 
 def test_archive_extractor_can_delete_archive_after_success(tmp_path: Path) -> None:

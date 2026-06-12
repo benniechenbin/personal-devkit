@@ -9,10 +9,16 @@ description = "Harvest TMDb movie and TV metadata candidates for subtitle workfl
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "core-utils",
+    "crawl-engine",
     "httpx>=0.28.1",
     "loguru>=0.7.2",
     "pydantic-settings>=2.2.1",
 ]
+
+[tool.uv.sources]
+core-utils = { workspace = true }
+crawl-engine = { workspace = true }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/subtitle_harvester_app"]
