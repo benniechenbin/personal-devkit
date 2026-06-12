@@ -134,3 +134,193 @@ def test_assrt_quota_exceeded_is_not_swallowed() -> None:
             provider.search(_candidate())
     finally:
         provider.close()
+
+
+def test_assrt_client_raises_quota_exceeded_without_token_query() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert "token" not in request.url.params
+        assert request.headers["authorization"] == "Bearer test-token"
+        return httpx.Response(509, request=request)
+
+    http_client = httpx.Client(
+        base_url="https://api.assrt.net",
+        transport=httpx.MockTransport(handler),
+    )
+    client = AssrtApiClient(token="test-token", client=http_client)
+
+    with pytest.raises(AssrtQuotaExceeded):
+        client.search("哪吒之魔童闹海")
+
+    client.close()
+
+
+def test_assrt_provider_skips_irrelevant_search_items_before_detail() -> None:
+    detail_calls: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        path = request.url.path
+
+        if path == "/v1/sub/search":
+            return httpx.Response(
+                200,
+                json={
+                    "status": 0,
+                    "sub": {
+                        "subs": [
+                            {
+                                "id": 1,
+                                "native_name": "Hijack 2023",
+                                "videoname": "Hijack.S01E01.1080p",
+                                "lang": {"desc": "英 简 繁"},
+                            },
+                            {
+                                "id": 2,
+                                "native_name": "哪吒之魔童闹海 Ne Zha 2",
+                                "videoname": "Ne.Zha.2.2025.1080p",
+                                "lang": {"desc": "简体中文"},
+                            },
+                        ]
+                    },
+                },
+                request=request,
+            )
+
+        if path == "/v1/sub/detail":
+            subtitle_id = request.url.params.get("id")
+            detail_calls.append(subtitle_id or "")
+
+            return httpx.Response(
+                200,
+                json={
+                    "status": 0,
+                    "sub": {
+                        "subs": [
+                            {
+                                "id": int(subtitle_id or 0),
+                                "filename": "Ne.Zha.2.2025.zip",
+                                "native_name": "哪吒之魔童闹海 Ne Zha 2",
+                                "videoname": "Ne.Zha.2.2025.1080p",
+                                "lang": {"desc": "简体中文"},
+                                "filelist": [
+                                    {
+                                        "url": "https://file.assrt.net/onthefly/2/demo.srt",
+                                        "f": "Ne.Zha.2.2025.zh.srt",
+                                    }
+                                ],
+                            }
+                        ]
+                    },
+                },
+                request=request,
+            )
+
+        return httpx.Response(404, request=request)
+
+    http_client = httpx.Client(
+        base_url="https://api.assrt.net",
+        transport=httpx.MockTransport(handler),
+    )
+    client = AssrtApiClient(token="test-token", client=http_client)
+    provider = AssrtApiProvider(
+        token="test-token",
+        client=client,
+        max_detail_results=1,
+    )
+
+    try:
+        results = provider.search(_candidate())
+    finally:
+        provider.close()
+
+    assert detail_calls == ["2"]
+    assert len(results) == 1
+    assert results[0].source_id == "2:file:0"
+    assert results[0].download_url == "https://file.assrt.net/onthefly/2/demo.srt"
+
+
+def test_assrt_provider_limits_relevant_detail_requests() -> None:
+    detail_calls: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        path = request.url.path
+
+        if path == "/v1/sub/search":
+            return httpx.Response(
+                200,
+                json={
+                    "status": 0,
+                    "sub": {
+                        "subs": [
+                            {
+                                "id": 1,
+                                "native_name": "哪吒之魔童闹海 版本1",
+                                "videoname": "Ne.Zha.2.2025.A",
+                                "lang": {"desc": "简体中文"},
+                            },
+                            {
+                                "id": 2,
+                                "native_name": "哪吒之魔童闹海 版本2",
+                                "videoname": "Ne.Zha.2.2025.B",
+                                "lang": {"desc": "简体中文"},
+                            },
+                            {
+                                "id": 3,
+                                "native_name": "哪吒之魔童闹海 版本3",
+                                "videoname": "Ne.Zha.2.2025.C",
+                                "lang": {"desc": "简体中文"},
+                            },
+                        ]
+                    },
+                },
+                request=request,
+            )
+
+        if path == "/v1/sub/detail":
+            subtitle_id = request.url.params.get("id") or ""
+            detail_calls.append(subtitle_id)
+
+            return httpx.Response(
+                200,
+                json={
+                    "status": 0,
+                    "sub": {
+                        "subs": [
+                            {
+                                "id": int(subtitle_id),
+                                "filename": f"Ne.Zha.2.{subtitle_id}.zip",
+                                "native_name": "哪吒之魔童闹海",
+                                "videoname": f"Ne.Zha.2.2025.{subtitle_id}",
+                                "lang": {"desc": "简体中文"},
+                                "filelist": [
+                                    {
+                                        "url": f"https://file.assrt.net/onthefly/{subtitle_id}/demo.srt",
+                                        "f": f"Ne.Zha.2.2025.{subtitle_id}.zh.srt",
+                                    }
+                                ],
+                            }
+                        ]
+                    },
+                },
+                request=request,
+            )
+
+        return httpx.Response(404, request=request)
+
+    http_client = httpx.Client(
+        base_url="https://api.assrt.net",
+        transport=httpx.MockTransport(handler),
+    )
+    client = AssrtApiClient(token="test-token", client=http_client)
+    provider = AssrtApiProvider(
+        token="test-token",
+        client=client,
+        max_detail_results=2,
+    )
+
+    try:
+        results = provider.search(_candidate())
+    finally:
+        provider.close()
+
+    assert detail_calls == ["1", "2"]
+    assert len(results) == 2
